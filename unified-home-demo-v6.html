@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#0c2a17" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Furever" />
+<link rel="apple-touch-icon" href="./pipi-assets/pipi-avatar.png" />
+<title>Pipi · Story · Voice Companion</title>
+<style>
+  :root {
+    --ink: #1c2620;
+    --green-deep: #0f3d22;
+    --green: #1c7a3c;
+    --green-scene-a: #3ecf63;
+    --green-scene-b: #1e8a40;
+    --cream: #f7f4ec;
+    --wood: #c98a5e;
+    --gold: #ffe3b0;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; min-height:100%; background:#111; color:var(--ink); font-family:-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  body { overflow:hidden; }
+  button { font:inherit; color:inherit; border:0; cursor:pointer; background:transparent; }
+  .app-shell { width:min(100vw, 430px); height:100svh; min-height:620px; margin:0 auto; position:relative; overflow:hidden; background:#0b2415; box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 18px 60px rgba(0,0,0,.3); }
+
+  /* Vertical day track */
+  .days-viewport { position:absolute; inset:0; overflow:hidden; touch-action:none; }
+  .days-track { position:absolute; left:0; top:0; width:100%; height:100%; will-change:transform; }
+  .day { position:absolute; left:0; width:100%; height:100%; overflow:hidden; }
+  .day .shots-track { position:absolute; left:0; top:0; width:100%; height:100%; will-change:transform; }
+  .shot { position:absolute; left:0; top:0; width:100%; height:100%; overflow:hidden; background:#12271a; }
+  .shot img { width:100%; height:100%; object-fit:cover; display:block; }
+  .shot .story-poster, .shot .story-video { width:100%; height:100%; object-fit:cover; display:block; }
+  .shot .story-video { position:absolute; inset:0; opacity:0; transition:opacity .2s ease; background:#10271a; }
+  .shot .story-video.playing { opacity:1; }
+  .shot.video-failed .story-video { opacity:0; }
+  .story-video-toggle { position:absolute; z-index:3; right:16px; bottom:calc(116px + var(--safe-bottom)); width:34px; height:34px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.7); border-radius:50%; color:#fff; background:rgba(8,25,16,.48); backdrop-filter:blur(7px); opacity:.9; }
+  .story-video-toggle svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .story-video-toggle .pause-icon { display:none; }
+  .video-shot .story-video.playing + .story-video-toggle .play-icon { display:none; }
+  .video-shot .story-video.playing + .story-video-toggle .pause-icon { display:block; }
+  .story-generate-video { position:absolute; z-index:3; left:50%; bottom:calc(190px + var(--safe-bottom)); transform:translateX(-50%); display:inline-flex; align-items:center; gap:7px; padding:9px 14px; border:1px solid rgba(255,255,255,.78); border-radius:999px; color:#fff; background:rgba(8,25,16,.52); backdrop-filter:blur(8px); font-size:12px; font-weight:650; white-space:nowrap; }
+  .story-generate-video svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .story-generate-video.generating { opacity:.78; pointer-events:none; }
+  .story-shot { display:flex; align-items:center; justify-content:center; padding:28px; background:linear-gradient(180deg,rgba(8,24,15,.28),rgba(8,24,15,.58)),url('./babs-assets/scene/babs-mushroom-act-poster.jpg') center/cover no-repeat; }
+  .story-copy { position:relative; z-index:2; width:min(88%,330px); padding:24px 22px; border:1px solid rgba(255,255,255,.28); border-radius:18px; color:#fff; background:rgba(13,35,24,.68); box-shadow:0 16px 40px rgba(0,0,0,.25); backdrop-filter:blur(3px); }
+  .story-copy small { display:block; margin-bottom:10px; color:#c6e5d1; font-size:11px; letter-spacing:.04em; }
+  .story-copy h2 { margin:0 0 12px; font-size:24px; line-height:1.2; }
+  .story-copy p { margin:0; color:rgba(255,255,255,.86); font-size:15px; line-height:1.7; }
+  .story-generate-image { display:inline-flex; align-items:center; gap:7px; margin-top:20px; padding:10px 15px; border-radius:999px; color:#173323; background:#d9f3df; font-size:12px; font-weight:700; }
+  .story-generate-image.generating { opacity:.7; pointer-events:none; }
+  .story-generate-image svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .moment-preview-shot { background:#14271b; }
+  .moment-preview-bg { position:absolute; inset:-10px; width:calc(100% + 20px) !important; height:calc(100% + 20px) !important; object-fit:cover; filter:blur(7px) brightness(.54) saturate(.82); transform:scale(1.04); }
+  .moment-preview-shot::before { content:""; position:absolute; z-index:1; inset:0; background:linear-gradient(180deg,rgba(7,20,13,.36),rgba(7,20,13,.12) 28%,rgba(7,20,13,.58) 100%); pointer-events:none; }
+  .moment-preview-copy { position:absolute; z-index:2; left:25px; right:25px; top:clamp(155px,24svh,210px); bottom:calc(142px + var(--safe-bottom)); display:flex; flex-direction:column; justify-content:center; align-items:flex-start; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.56); }
+  .moment-preview-time { color:rgba(237,247,239,.7); font-size:11px; font-variant-numeric:tabular-nums; }
+  .moment-preview-copy h2 { margin:8px 0 12px; max-width:330px; font-size:27px; line-height:1.18; letter-spacing:0; }
+  .moment-preview-copy p { margin:0; max-width:340px; color:rgba(255,255,255,.88); font-size:14px; line-height:1.65; }
+  .moment-preview-os { margin-top:10px; color:#d7eadc; font-size:12px; font-style:italic; }
+  .moment-snap-action { display:inline-flex; align-items:center; gap:8px; margin-top:24px; padding:11px 16px; border:1px solid rgba(255,255,255,.74); border-radius:999px; color:#183420; background:rgba(255,241,202,.96); box-shadow:0 8px 22px rgba(0,0,0,.2); font-size:12px; font-weight:740; text-shadow:none; }
+  .moment-snap-action svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .moment-snap-action:disabled { opacity:.62; cursor:default; }
+  .shot::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(4,18,10,.5) 0%, transparent 26%, transparent 55%, rgba(4,18,10,.72) 100%); pointer-events:none; }
+  .pending-shot img { filter:blur(5px) saturate(.78) brightness(.72); transform:scale(1.04); }
+  .pending-shot-copy { position:absolute; z-index:2; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#fff; text-align:center; text-shadow:0 2px 12px rgba(0,0,0,.35); }
+  .pending-shot-copy strong { font-size:20px; font-weight:720; }
+  .pending-shot-copy small { max-width:70%; font-size:11px; line-height:1.5; opacity:.88; }
+  .pending-spinner { width:26px; height:26px; border:2px solid rgba(255,255,255,.38); border-top-color:#ffe2a2; border-radius:50%; animation:spin .9s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Top HUD */
+  .hud-top { position:absolute; z-index:5; top:0; left:0; right:0; padding: calc(10px + var(--safe-top)) 18px 0; color:#fff; }
+  .status-bar { display:flex; align-items:center; justify-content:space-between; font-size:17px; font-weight:700; }
+  .status-right { display:flex; align-items:center; gap:8px; }
+  .signal { display:flex; align-items:end; gap:2px; height:13px; }
+  .signal i { display:block; width:3px; border-radius:2px; background:#fff; }
+  .signal i:nth-child(1){height:5px;opacity:.8}.signal i:nth-child(2){height:8px;opacity:.9}.signal i:nth-child(3){height:11px}.signal i:nth-child(4){height:13px}
+  .wifi-icon{width:18px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+  .battery{width:22px;height:11px;border:1.4px solid #fff;border-radius:3px;position:relative}
+  .battery::before{content:"";position:absolute;inset:2px 5px 2px 2px;border-radius:1px;background:#fff}
+  .battery::after{content:"";width:2px;height:4px;background:#fff;right:-3px;top:2px;border-radius:0 2px 2px 0}
+  .pet-hud { margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .pet-hud .who { display:flex; align-items:center; gap:7px; min-width:0; }
+  .utility-strip { display:flex; align-items:center; gap:11px; flex:0 0 auto; z-index:6; }
+  .utility-strip button { position:relative; width:28px; height:28px; display:grid; place-items:center; color:#fff; }
+  .utility-strip button svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 2px 4px rgba(0,0,0,.26)); }
+  .utility-strip .notification-dot { position:absolute; top:0; right:0; width:7px; height:7px; border-radius:50%; background:#ff4e69; box-shadow:0 0 0 2px rgba(255,255,255,.14); }
+  .utility-strip .treats-action { display:flex; align-items:center; gap:6px; width:auto; }
+  .utility-strip .treats-action .treats-icon { width:36px; height:36px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#ffb629; border:2px solid rgba(255,242,175,.9); box-shadow:0 2px 8px rgba(71,40,0,.38); }
+  .utility-strip .treats-action .treats-icon svg { width:23px; height:23px; stroke-width:1.7; }
+  .utility-strip .treats-count { color:#fff; font-size:18px; font-weight:750; letter-spacing:.2px; text-shadow:0 2px 6px rgba(0,0,0,.24); }
+  .utility-strip button:active { transform:scale(.94); }
+  .pet-identity { min-width:0; display:grid; grid-template-columns:auto 23px; grid-template-rows:auto auto; column-gap:3px; align-items:center; }
+  .pet-name-button { grid-column:1; grid-row:1; display:block; min-width:0; padding:0; color:#fff; text-align:left; }
+  .pet-hud .who b { font-size:16px; font-weight:700; display:block; white-space:nowrap; }
+  .pet-switch { grid-column:2; grid-row:1; width:23px; height:23px; display:grid; place-items:center; color:#fff; opacity:.92; }
+  .pet-switch svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
+  .pet-hud .who span { grid-column:1 / -1; grid-row:2; font-size:10px; opacity:.78; white-space:nowrap; }
+  .header-actions { min-width:0; display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-left:auto; }
+  .world-chip { display:inline-flex; align-items:center; gap:5px; flex:0 1 auto; min-width:0; max-width:min(38vw,170px); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:5px 10px; border-radius:99px; font-size:11px; color:#e8f8ec; background:rgba(8,34,18,.5); backdrop-filter:blur(6px); }
+  .world-chip .dot { width:6px; height:6px; border-radius:50%; background:#7ef29a; box-shadow:0 0 0 3px rgba(126,242,154,.25); animation:blink 1.8s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* Day indicator */
+  .day-rail { position:absolute; z-index:5; right:13px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:9px; align-items:center; }
+  .day-rail i { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.4); transition:.25s; }
+  .day-rail i.active { height:16px; border-radius:99px; background:#ffe3b0; }
+
+  /* Bottom HUD */
+  .hud-bottom { position:absolute; z-index:5; left:0; right:0; top:calc(112px + var(--safe-top)); bottom:auto; padding:10px 18px 12px; color:#fff; display:flex; flex-direction:column; gap:13px; background:transparent; }
+  .caption { max-width: min(82%, 350px); transition:opacity .2s ease; }
+  .caption.story-hidden { opacity:0; }
+  .caption-date-row { display:flex; align-items:center; gap:9px; }
+  .caption .kicker { font-size:12px; letter-spacing:.4px; font-weight:650; color:rgba(255,255,255,.86); text-shadow:0 1px 4px rgba(0,0,0,.78); }
+  .caption-time { margin-top:5px; color:rgba(255,255,255,.86); font-size:14px; font-weight:650; font-variant-numeric:tabular-nums; text-shadow:0 1px 4px rgba(0,0,0,.78); }
+  .caption-title-row { display:flex; align-items:center; gap:10px; margin-top:5px; }
+  .caption .title { min-width:0; font-size:23px; font-weight:720; line-height:1.2; text-shadow:0 1px 5px rgba(0,0,0,.8); }
+  .story-open { flex:0 0 auto; display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border:1px solid rgba(255,255,255,.48); border-radius:99px; color:#fff; background:rgba(9,25,18,.24); backdrop-filter:blur(5px); box-shadow:0 2px 9px rgba(0,0,0,.15); font-size:10px; font-weight:650; text-shadow:0 1px 4px rgba(0,0,0,.55); }
+  .story-open svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .story-open:active { transform:scale(.96); }
+  .caption .os { margin-top:7px; font-size:14px; opacity:.96; line-height:1.5; text-shadow:0 1px 4px rgba(0,0,0,.82); }
+  .next-story { display:none; margin-top:8px; color:rgba(255,255,255,.82); font-size:12px; line-height:1.5; }
+  .next-story.on { display:block; }
+  .next-hint { display:none; margin-top:7px; color:#ffe1a3; font-size:11px; }
+  .next-hint.on { display:flex; align-items:center; gap:5px; }
+  .next-hint svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .bottom-row { display:flex; align-items:center; gap:13px; }
+  .shot-dots { display:flex; gap:5px; flex:0 0 auto; }
+  .shot-dots i { width:5px; height:5px; border-radius:99px; background:rgba(255,255,255,.4); transition:.2s; }
+  .shot-dots i.active { width:16px; background:#fff; }
+  .date-hint { flex:1; color:rgba(255,255,255,.7); font-size:12px; }
+  .swipe-hint { color:rgba(255,255,255,.5); font-size:10px; text-align:right; }
+
+  /* Return to latest day */
+  .today-anchor { position:absolute; z-index:8; top:calc(116px + var(--safe-top)); right:18px; display:none; align-items:center; gap:6px; padding:8px 11px; border-radius:99px; color:#18351f; background:rgba(255,239,200,.95); box-shadow:0 8px 18px rgba(0,20,8,.28); font-size:11px; font-weight:700; }
+  .today-anchor.on { display:inline-flex; }
+  .today-anchor svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* Legacy generation entry kept hidden */
+  .generation-guide { position:absolute; z-index:8; top:calc(176px + var(--safe-top)); left:50%; transform:translateX(-50%); display:inline-flex; align-items:center; gap:7px; max-width:calc(100% - 38px); padding:8px 12px; border:1px solid rgba(255,255,255,.24); border-radius:99px; color:#fff; background:rgba(12,38,23,.58); backdrop-filter:blur(8px); box-shadow:0 7px 18px rgba(0,20,8,.22); font-size:11px; white-space:nowrap; transition:opacity .25s ease, transform .25s ease; }
+  .generation-guide.hidden { opacity:0; pointer-events:none; transform:translate(-50%,-8px); }
+  .generation-guide svg { width:14px; height:14px; fill:none; stroke:#ffe1a3; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .generation-guide strong { color:#ffe1a3; font-weight:700; }
+  .generation-guide.generating { background:rgba(28,51,42,.78); }
+  .generation-story { position:absolute; z-index:8; top:calc(94px + var(--safe-top)); left:50%; transform:translateX(-50%); width:min(86%,340px); color:rgba(255,255,255,.92); font-size:13px; line-height:1.45; text-align:center; text-shadow:0 2px 10px rgba(0,0,0,.42); transition:opacity .25s ease, transform .25s ease; }
+  .generation-story.hidden { opacity:0; pointer-events:none; transform:translate(-50%,-8px); }
+  .generation-story, .generation-guide { display:none; }
+
+  /* Day story sheet */
+  .story-sheet { position:absolute; z-index:14; top:0; left:0; right:0; height:clamp(350px,58svh,520px); pointer-events:none; visibility:hidden; color:#f8fbf7; background:rgba(10,27,20,.86); backdrop-filter:blur(16px) saturate(.9); box-shadow:0 18px 34px rgba(2,12,7,.2); transform:translateY(-102%); transition:transform .38s cubic-bezier(.22,.61,.36,1), visibility 0s linear .38s; }
+  .story-sheet::after { content:""; position:absolute; left:0; right:0; bottom:-34px; height:34px; pointer-events:none; background:linear-gradient(180deg,rgba(10,27,20,.32),transparent); }
+  .story-sheet.open { pointer-events:auto; visibility:visible; transform:translateY(0); transition:transform .38s cubic-bezier(.22,.61,.36,1), visibility 0s; }
+  .story-sheet-inner { height:100%; display:flex; flex-direction:column; padding:calc(14px + var(--safe-top)) 20px 0; }
+  .story-sheet-head { flex:0 0 auto; display:flex; align-items:flex-start; gap:14px; padding-bottom:13px; border-bottom:1px solid rgba(255,255,255,.14); }
+  .story-sheet-heading { min-width:0; flex:1; }
+  .story-sheet-kicker { color:#ffe0a0; font-size:12px; font-weight:760; letter-spacing:.02em; }
+  .story-sheet-date { margin-top:5px; color:rgba(235,247,238,.68); font-size:11px; font-variant-numeric:tabular-nums; }
+  .story-sheet-title { margin:6px 0 0; font-size:22px; line-height:1.25; font-weight:730; }
+  .story-sheet-world { margin-top:6px; color:#d1ead9; font-size:12px; line-height:1.45; }
+  .story-sheet-close { flex:0 0 auto; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; color:#fff; background:rgba(255,255,255,.12); }
+  .story-sheet-close svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+  .story-sheet-scroll { min-height:0; flex:1; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; padding:8px 2px calc(24px + var(--safe-bottom)); scrollbar-width:none; }
+  .story-sheet-scroll::-webkit-scrollbar { display:none; }
+  .story-event { position:relative; display:grid; grid-template-columns:42px 1fr; column-gap:13px; padding:12px 0 13px; }
+  .story-event + .story-event { border-top:1px solid rgba(255,255,255,.1); }
+  .story-event-time { padding-top:2px; color:rgba(224,241,230,.55); font-size:10px; font-variant-numeric:tabular-nums; }
+  .story-event-copy { min-width:0; padding-left:12px; border-left:2px solid rgba(255,255,255,.14); transition:border-color .2s ease; }
+  .story-event-title-row { display:flex; align-items:flex-start; gap:10px; }
+  .story-event-title { font-size:14px; line-height:1.35; font-weight:690; }
+  .story-event-title-row .story-event-title { min-width:0; flex:1; }
+  .story-event-snap, .story-event-saved { flex:0 0 auto; width:28px; height:28px; display:grid; place-items:center; margin-top:-4px; border-radius:50%; }
+  .story-event-snap { color:#173622; background:#ffe3a8; box-shadow:0 3px 9px rgba(0,0,0,.18); }
+  .story-event-snap:active { transform:scale(.94); }
+  .story-event-saved { color:#ffe3a8; background:rgba(255,255,255,.08); }
+  .story-event-snap svg, .story-event-saved svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .story-event.pending .story-event-saved { animation:pulse-saved 1.4s ease-in-out infinite; }
+  @keyframes pulse-saved { 50% { opacity:.42; } }
+  .story-event-text { margin:5px 0 0; color:rgba(242,248,243,.72); font-size:12px; line-height:1.6; }
+  .story-event-os { margin-top:5px; color:#cfe6d5; font-size:11px; line-height:1.45; font-style:italic; }
+  .story-event.current .story-event-time { color:#ffe0a0; }
+  .story-event.current .story-event-copy { border-left-color:#ffe0a0; }
+  .story-event.current .story-event-title { color:#fff3cf; }
+  .story-event.pending .story-event-copy { border-left-style:dashed; }
+  @media (max-height:700px) {
+    .story-sheet { height:clamp(340px,61svh,430px); }
+    .story-sheet-inner { padding-left:17px; padding-right:17px; }
+    .story-event { padding-top:10px; padding-bottom:11px; }
+  }
+
+  /* Profile and pet switching */
+  .profile-view, .pet-picker { position:absolute; inset:0; z-index:24; pointer-events:none; opacity:0; transition:opacity .25s ease; }
+  .profile-view.open, .pet-picker.open { pointer-events:auto; opacity:1; }
+  .profile-view .profile-surface { position:absolute; inset:0; overflow-y:auto; padding:calc(58px + var(--safe-top)) 20px calc(30px + var(--safe-bottom)); color:#29352d; background:linear-gradient(150deg,#dbe8f0 0%,#b5d3dd 36%,#f3c4a4 100%); transform:translateX(102%); transition:transform .36s cubic-bezier(.22,.61,.36,1); }
+  .profile-view.open .profile-surface { transform:translateX(0); }
+  .profile-close { position:absolute; z-index:2; top:calc(15px + var(--safe-top)); left:15px; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; color:#fff; background:rgba(29,61,76,.34); }
+  .profile-close svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  .profile-heading { text-align:center; color:#203b45; font-size:18px; font-weight:720; }
+  .profile-avatar { width:122px; height:122px; display:block; margin:28px auto 18px; border:6px solid rgba(255,255,255,.92); border-radius:42% 42% 46% 46%; object-fit:cover; box-shadow:0 10px 20px rgba(29,58,66,.22); }
+  .profile-card { margin-top:12px; padding:8px 16px; border-radius:18px; background:rgba(255,255,255,.74); box-shadow:0 8px 20px rgba(37,67,69,.1); }
+  .profile-row { min-height:45px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(35,67,68,.1); font-size:13px; }
+  .profile-row:last-child { border-bottom:0; }
+  .profile-row span { color:#678087; }
+  .profile-row strong { color:#29414a; font-size:14px; font-weight:700; }
+  .pet-picker { display:flex; align-items:flex-end; }
+  .pet-picker-backdrop { position:absolute; inset:0; background:rgba(10,28,20,.46); backdrop-filter:blur(5px); }
+  .pet-picker-sheet { position:relative; width:100%; padding:13px 17px calc(20px + var(--safe-bottom)); border-radius:24px 24px 0 0; background:#fffaf2; box-shadow:0 -10px 30px rgba(19,36,24,.25); transform:translateY(104%); transition:transform .34s cubic-bezier(.22,.61,.36,1); }
+  .pet-picker.open .pet-picker-sheet { transform:translateY(0); }
+  .pet-picker-grab { width:36px; height:4px; margin:0 auto 13px; border-radius:4px; background:#d7c9b9; }
+  .pet-picker-title { color:#3e3731; font-size:16px; font-weight:720; }
+  .pet-option { width:100%; display:flex; align-items:center; gap:11px; margin-top:10px; padding:10px; border-radius:14px; color:#3e3731; background:transparent; text-align:left; }
+  .pet-option.selected { background:#f3e7d8; }
+  .pet-option img { width:43px; height:43px; border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:0 2px 7px rgba(59,43,26,.14); }
+  .pet-option-copy { flex:1; }
+  .pet-option-copy strong { display:block; font-size:14px; }
+  .pet-option-copy span { display:block; margin-top:3px; color:#9b9085; font-size:10px; }
+  .pet-option-check { color:#b86f4d; font-size:17px; }
+  .pet-picker-close { position:absolute; top:10px; right:15px; width:31px; height:31px; display:grid; place-items:center; color:#8a7664; font-size:21px; }
+
+  /* Floating pet icon */
+  .float-pet { position:absolute; z-index:6; left:50%; right:auto; bottom:calc(16px + var(--safe-bottom)); width:102px; height:102px; border-radius:50%; padding:0; box-shadow:0 10px 26px rgba(0,20,8,.48); animation: bob 3.4s ease-in-out infinite; }
+  .float-pet img { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; border:2.5px solid rgba(255,255,255,.9); }
+  .float-pet .ping { position:absolute; inset:-3px; border-radius:50%; border:2px solid rgba(255,230,168,.7); animation: ping 2.2s ease-out infinite; }
+  .float-pet .mic-badge { position:absolute; right:-3px; bottom:-3px; width:36px; height:36px; border-radius:50%; display:grid; place-items:center; color:#5b3f15; background:linear-gradient(160deg,#ffe9b8,#f5c96a); box-shadow:0 2px 6px rgba(0,0,0,.35), 0 0 0 2.5px rgba(255,255,255,.92); }
+  .float-pet .mic-badge svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.4; }
+  @keyframes bob { 0%,100%{transform:translate(-50%,0)} 50%{transform:translate(-50%,-7px)} }
+  @keyframes ping { 0%{transform:scale(.85);opacity:.8} 70%,100%{transform:scale(1.35);opacity:0} }
+
+  /* Main Gift entry */
+  .gift-launch { position:absolute; z-index:7; right:18px; bottom:calc(28px + var(--safe-bottom)); width:70px; height:70px; display:grid; place-items:center; border-radius:50%; color:#252b28; background:rgba(255,255,255,.96); box-shadow:0 10px 25px rgba(0,18,8,.34); }
+  .gift-launch svg { width:31px; height:31px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  .gift-launch:active { transform:scale(.95); }
+  .companion-launch { position:absolute; z-index:7; left:18px; bottom:calc(28px + var(--safe-bottom)); width:70px; height:70px; display:grid; place-items:center; border-radius:50%; color:#252b28; background:rgba(255,255,255,.96); box-shadow:0 10px 25px rgba(0,18,8,.34); }
+  .companion-launch svg { width:31px; height:31px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .companion-launch:active { transform:scale(.95); }
+  .gift-camera { position:absolute; z-index:26; inset:0; overflow:hidden; pointer-events:none; visibility:hidden; opacity:0; color:#fff; background:#171916; transition:opacity .28s ease, visibility 0s linear .34s; }
+  .gift-camera.open { pointer-events:auto; visibility:visible; opacity:1; transition:opacity .28s ease, visibility 0s; }
+  .gift-camera-feed, .gift-camera-photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .gift-camera-feed { opacity:0; transition:opacity .25s ease; }
+  .gift-camera.live .gift-camera-feed { opacity:1; }
+  .gift-camera-photo { opacity:0; transition:opacity .2s ease; }
+  .gift-camera.captured .gift-camera-photo { opacity:1; }
+  .gift-camera-fallback { position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,15,12,.18),rgba(10,15,12,.42)),url('./pipi-assets/snaps/pipi-532519.png') center/cover no-repeat; filter:blur(2px) brightness(.7); transform:scale(1.02); }
+  .gift-camera.live .gift-camera-fallback, .gift-camera.captured .gift-camera-fallback { opacity:0; }
+  .gift-camera::after { content:""; position:absolute; z-index:1; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 31%,transparent 62%,rgba(0,0,0,.72) 100%); pointer-events:none; }
+  .gift-camera-copy { position:absolute; z-index:3; top:calc(70px + var(--safe-top)); left:24px; right:24px; text-align:center; text-shadow:0 2px 12px rgba(0,0,0,.48); }
+  .gift-camera-copy h2 { margin:0; font-size:29px; line-height:1.2; letter-spacing:0; }
+  .gift-camera-copy p { margin:9px 0 0; font-size:13px; line-height:1.45; color:rgba(255,255,255,.88); }
+  .gift-capture-frame { position:absolute; z-index:2; left:8.5%; right:8.5%; top:30%; height:min(43svh,390px); border:3px solid rgba(255,255,255,.9); border-radius:26px; box-shadow:0 0 0 1px rgba(0,0,0,.16); pointer-events:none; }
+  .gift-frame-icon { position:absolute; left:50%; top:-59px; width:114px; height:70px; transform:translateX(-50%); fill:none; stroke:rgba(255,255,255,.9); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .gift-camera-tip { position:absolute; z-index:3; left:24px; right:24px; bottom:calc(145px + var(--safe-bottom)); color:rgba(255,255,255,.76); font-size:11px; text-align:center; text-shadow:0 2px 8px rgba(0,0,0,.55); transition:opacity .2s ease; }
+  .gift-camera.captured .gift-camera-tip { opacity:0; }
+  .gift-camera-controls { position:absolute; z-index:4; left:24px; right:24px; bottom:calc(22px + var(--safe-bottom)); display:grid; grid-template-columns:1fr 90px 1fr; align-items:center; }
+  .gift-camera-control { width:58px; height:58px; display:grid; place-items:center; border-radius:50%; color:#fff; background:rgba(63,64,60,.7); backdrop-filter:blur(8px); }
+  .gift-camera-control svg { width:27px; height:27px; fill:none; stroke:currentColor; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; }
+  .gift-camera-close { justify-self:start; }
+  .gift-camera-gallery { justify-self:end; }
+  .gift-camera-shutter { justify-self:center; width:82px; height:82px; display:grid; place-items:center; border-radius:50%; border:2px solid rgba(255,255,255,.82); background:rgba(255,255,255,.18); box-shadow:0 7px 20px rgba(0,0,0,.25); }
+  .gift-camera-shutter::before { content:""; width:68px; height:68px; border-radius:50%; background:#9fea42; box-shadow:inset 0 0 0 1px rgba(255,255,255,.52); }
+  .gift-camera-shutter:active::before { transform:scale(.92); }
+  .gift-camera-send { position:absolute; z-index:4; left:50%; bottom:calc(126px + var(--safe-bottom)); display:none; align-items:center; gap:7px; padding:10px 16px; border-radius:999px; color:#1e341f; background:#e8f7cf; box-shadow:0 8px 20px rgba(0,0,0,.26); font-size:12px; font-weight:740; transform:translateX(-50%); white-space:nowrap; }
+  .gift-camera.captured .gift-camera-send { display:inline-flex; }
+  .gift-camera-send svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .gift-camera-input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .gift-toast { position:absolute; z-index:19; left:50%; bottom:calc(134px + var(--safe-bottom)); max-width:calc(100% - 44px); padding:9px 14px; border-radius:999px; color:#fff; background:rgba(20,43,28,.82); backdrop-filter:blur(8px); box-shadow:0 8px 20px rgba(0,0,0,.24); font-size:12px; white-space:nowrap; pointer-events:none; opacity:0; transform:translate(-50%,8px); transition:opacity .2s ease, transform .2s ease; }
+  .gift-toast.on { opacity:1; transform:translate(-50%,0); }
+
+  @media (max-height:700px) {
+    .gift-camera-copy { top:calc(48px + var(--safe-top)); }
+    .gift-capture-frame { top:27%; height:39svh; }
+    .gift-camera-tip { bottom:calc(128px + var(--safe-bottom)); }
+    .gift-camera-controls { bottom:calc(14px + var(--safe-bottom)); }
+    .gift-camera-control { width:52px; height:52px; }
+    .gift-camera-shutter { width:74px; height:74px; }
+    .gift-camera-shutter::before { width:61px; height:61px; }
+    .gift-camera-send { bottom:calc(110px + var(--safe-bottom)); }
+  }
+
+
+  /* Listening indicator */
+  .listen-badge { display:none !important; }
+  .listen-badge.on { display:inline-flex; }
+  .listen-badge .bars { display:flex; align-items:center; gap:2px; height:16px; }
+  .listen-badge .bars i { width:3px; border-radius:2px; background:#7ef29a; animation:eq .9s ease-in-out infinite; }
+  .listen-badge .bars i:nth-child(1){height:6px} .listen-badge .bars i:nth-child(2){height:13px;animation-delay:.1s} .listen-badge .bars i:nth-child(3){height:16px;animation-delay:.2s} .listen-badge .bars i:nth-child(4){height:9px;animation-delay:.3s} .listen-badge .bars i:nth-child(5){height:5px;animation-delay:.4s}
+  @keyframes eq { 0%,100%{transform:scaleY(.5)} 50%{transform:scaleY(1)} }
+  .listen-badge span { font-size:12px; }
+
+  /* Companion: full-screen voice and pet responses */
+  .companion { position:absolute; z-index:20; inset:0; display:flex; flex-direction:column; pointer-events:none; opacity:0; transition:opacity .28s ease; }
+  .companion.open { opacity:1; pointer-events:auto; }
+  .companion-backdrop { display:none; }
+  .companion-panel { position:relative; z-index:1; width:100%; height:100%; min-height:0; border-radius:0; overflow:hidden; background:linear-gradient(180deg,#6e9bd2 0%,#86aada 34%,#f5b18d 67%,#a9c4e9 100%); box-shadow:none; transform:translateY(100%); transition:transform .42s cubic-bezier(.22,.61,.36,1); }
+  .companion.open .companion-panel { transform:translateY(0); }
+  .companion-grab { display:none; }
+  .companion-body { position:relative; display:flex; flex-direction:column; align-items:center; height:100%; padding:calc(54px + var(--safe-top)) 18px calc(24px + var(--safe-bottom)); }
+  .companion-pet { position:relative; width:min(92vw, 396px); flex:1 1 auto; min-height:0; z-index:1; filter:drop-shadow(0 20px 20px rgba(30,47,88,.24)); display:flex; align-items:center; justify-content:center; }
+  .companion-pet img, .companion-pet video { width:100%; height:100%; aspect-ratio:auto; object-fit:contain; border-radius:0; box-shadow:none; display:block; }
+  .companion-pet img.video-active { opacity:0; }
+  .companion-pet video { opacity:0; }
+  .companion-pet canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transition:opacity .22s ease; pointer-events:none; }
+  .companion-pet canvas.playing { opacity:1; }
+  .companion-pet img { animation: breathe 3.6s ease-in-out infinite; }
+  .companion-pet video { position:absolute; inset:0; opacity:0; transition:opacity .3s ease; }
+  .companion-pet video.playing { opacity:0; }
+  .companion-pet .video-tag, .companion-pet .video-note { display:none; }
+  @keyframes breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+  .companion-bubble { position:relative; z-index:3; flex:0 0 auto; margin-top:2px; padding:10px 16px; border-radius:16px; color:#fff; background:rgba(47,70,120,.56); backdrop-filter:blur(10px); font-size:13px; line-height:1.45; max-width:90%; text-align:center; min-height:40px; display:flex; align-items:center; justify-content:center; transition:.2s; white-space:normal; }
+  .voice-transcript { display:none; }
+  .companion-mic { position:relative; z-index:3; flex:0 0 auto; margin-top:14px; width:78px; height:78px; border-radius:50%; display:grid; place-items:center; color:#fff; background:rgba(52,84,139,.82); border:2px solid rgba(149,227,255,.94); box-shadow:0 0 0 6px rgba(121,211,255,.24), 0 10px 28px rgba(29,51,97,.36); }
+  .companion-mic svg { width:31px; height:31px; fill:none; stroke:currentColor; stroke-width:2; }
+  .companion-mic.listening { background:rgba(255,255,255,.95); color:#345c98; box-shadow:0 0 0 9px rgba(142,226,255,.32), 0 8px 24px rgba(29,51,97,.36); }
+  .companion-mic:active { transform:scale(.96); }
+  .companion-fortune { position:absolute; z-index:4; top:calc(14px + var(--safe-top)); right:62px; width:36px; height:36px; display:grid; place-items:center; border-radius:50%; color:#fff; background:rgba(38,62,111,.34); }
+  .companion-fortune svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .companion-close { position:absolute; z-index:4; top:calc(14px + var(--safe-top)); right:16px; width:36px; height:36px; display:grid; place-items:center; border-radius:50%; color:#fff; background:rgba(38,62,111,.34); }
+
+  @media (max-height:700px){ .companion-body{padding-top:calc(48px + var(--safe-top));padding-bottom:calc(16px + var(--safe-bottom))}.companion-pet{width:min(82vw,330px)}.companion-bubble{margin-top:0}.companion-mic{margin-top:8px;width:68px;height:68px} }
+
+  @media (min-width:431px){ .app-shell{ height:min(900px,100svh); border-radius:28px; margin-top:max(0px,calc((100svh - 900px)/2)); } }
+</style>
+</head>
+<body>
+  <main class="app-shell" aria-label="Pipi Story">
+
+    <div class="days-viewport" id="daysViewport">
+      <div class="days-track" id="daysTrack"></div>
+    </div>
+
+    <header class="hud-top">
+      <div class="status-bar"><span>9:41</span><div class="status-right"><span class="signal"><i></i><i></i><i></i><i></i></span><svg class="wifi-icon" viewBox="0 0 24 20"><path d="M2 7.5a15.6 15.6 0 0 1 20 0"/><path d="M5.5 11a10.4 10.4 0 0 1 13 0"/><path d="M9.5 14.5a5.2 5.2 0 0 1 5 0"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg><span class="battery"></span></div></div>
+      <div class="pet-hud">
+        <div class="who">
+          <div class="pet-identity">
+            <button class="pet-name-button" id="profileTrigger" type="button" aria-label="View Pipi profile"><b id="hudName">Pipi</b></button>
+            <button class="pet-switch" id="petSwitch" type="button" aria-label="Switch pet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-3-3M19 16H5l3 3"/></svg></button>
+            <span id="hudDay"></span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="utility-strip" aria-label="Quick actions">
+            <button type="button" aria-label="Notifications">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/><circle class="notification-dot" cx="19" cy="5" r="3" fill="#ff4e69" stroke="none"/></svg>
+            </button>
+            <button type="button" aria-label="Settings">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+            </button>
+            <button class="treats-action" type="button" aria-label="Treats">
+              <span class="treats-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.7 11.2c-1.7 0-3.1-1.3-3.1-2.9 0-1 .7-1.8 1.6-1.8 1 0 1.8.8 2 1.8.2-1 .9-1.8 2-1.8.9 0 1.6.8 1.6 1.8 0 1.6-1.4 2.9-3.1 2.9Z"/><path d="M15.3 11.2c1.7 0 3.1-1.3 3.1-2.9 0-1-.7-1.8-1.6-1.8-1 0-1.8.8-2 1.8-.2-1-.9-1.8-2-1.8-.9 0-1.6.8-1.6 1.8 0 1.6 1.4 2.9 3.1 2.9Z"/><path d="M7 13.2c0 3.4 2.2 5.1 5 5.1s5-1.7 5-5.1c0-1.7-1.1-2.7-2.5-2.7-.9 0-1.8.5-2.5 1.2-.7-.7-1.6-1.2-2.5-1.2C8.1 10.5 7 11.5 7 13.2Z"/></svg></span>
+              <strong class="treats-count">288</strong>
+            </button>
+          </div>
+          <div class="world-chip"><span class="dot"></span><span id="hudWorld">Silvergrass & Slow Trails</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="day-rail" id="dayRail"></div>
+    <button class="today-anchor" id="todayAnchor" aria-label="Back to today">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 5v5h5"/></svg>
+      <span>Today</span>
+    </button>
+    <div class="generation-story" id="generationStory">A quiet trail follows the water. Pipi may have found something familiar.</div>
+    <button class="generation-guide" id="generationGuide" type="button" aria-label="Explore the next moment">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M11 6l-6 6 6 6"/></svg><span id="generationGuideText">Explore the next moment · <strong>1 Treat</strong></span>
+    </button>
+
+    <footer class="hud-bottom">
+      <div class="caption">
+        <div class="caption-date-row">
+          <div class="kicker" id="capKicker">Jul 30 · Day 84 in Furever</div>
+          <button class="story-open" id="storyOpen" type="button" aria-expanded="false" aria-controls="storySheet" title="View today's story">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22V5.5Z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22V5.5Z"/></svg>
+            <span>Story</span>
+          </button>
+        </div>
+        <div class="caption-time" id="capTime">11:52</div>
+        <div class="caption-title-row">
+          <div class="title" id="capTitle">The Sudden Whirlwind</div>
+          <button class="story-open" id="storyOpen" type="button" aria-expanded="false" aria-controls="storySheet" title="View today's story">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H11v17H7.5A3.5 3.5 0 0 0 4 22V5.5Z"/><path d="M20 5.5A3.5 3.5 0 0 0 16.5 2H13v17h3.5A3.5 3.5 0 0 1 20 22V5.5Z"/></svg>
+            <span>Story</span>
+          </button>
+        </div>
+        <div class="os" id="capOs">Pipi becomes a furry whirlwind, barreling toward the deer in a high-energy lunge.</div>
+        <div class="next-story" id="nextStory"></div>
+        <div class="next-hint" id="nextHint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H6M11 6l-6 6 6 6"/></svg><span>Explore the next moment · <strong>1 Treat</strong></span></div>
+      </div>
+      <div class="bottom-row">
+        <div class="shot-dots" id="shotDots"></div>
+        <div class="date-hint" id="dateHint"></div>
+      </div>
+    </footer>
+
+    <section class="story-sheet" id="storySheet" aria-hidden="true" aria-labelledby="storySheetTitle">
+      <div class="story-sheet-inner">
+        <header class="story-sheet-head">
+          <div class="story-sheet-heading">
+            <div class="story-sheet-kicker">Story</div>
+            <div class="story-sheet-date" id="storySheetDate"></div>
+            <h2 class="story-sheet-title" id="storySheetTitle"></h2>
+            <div class="story-sheet-world" id="storySheetWorld"></div>
+          </div>
+          <button class="story-sheet-close" id="storySheetClose" type="button" aria-label="Close story">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </header>
+        <div class="story-sheet-scroll" id="storySheetScroll">
+          <div id="storyEvents"></div>
+        </div>
+      </div>
+    </section>
+
+    <button class="float-pet" id="floatPet" aria-label="Talk with Pipi"><span class="ping"></span><img id="floatAvatar" alt="Pipi"><span class="mic-badge"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span></button>
+
+    <button class="gift-launch" id="giftLaunch" type="button" aria-label="Take a gift photo for Pipi" aria-expanded="false" aria-controls="giftCamera">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18v11H3zM2 7h20v4H2zM12 7v14"/><path d="M12 7H8.5A2.5 2.5 0 1 1 11 4.5L12 7ZM12 7h3.5A2.5 2.5 0 1 0 13 4.5L12 7Z"/></svg>
+    </button>
+    <button class="companion-launch" id="companionLaunch" type="button" aria-label="Open Companion">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5A3.5 3.5 0 0 1 8.5 3h7A3.5 3.5 0 0 1 19 6.5v5a3.5 3.5 0 0 1-3.5 3.5H12l-4 4v-4.2A3.5 3.5 0 0 1 5 11.5Z"/><path d="M9 8.8h.01M12 8.8h.01M15 8.8h.01"/></svg>
+    </button>
+    <div class="gift-toast" id="giftToast" role="status" aria-live="polite"></div>
+
+    <section class="gift-camera" id="giftCamera" aria-hidden="true" aria-labelledby="giftCameraTitle">
+      <div class="gift-camera-fallback"></div>
+      <video class="gift-camera-feed" id="giftCameraVideo" autoplay muted playsinline></video>
+      <img class="gift-camera-photo" id="giftCameraPhoto" alt="Gift photo for Pipi" />
+      <div class="gift-camera-copy">
+        <h2 id="giftCameraTitle">Capture a gift</h2>
+        <p id="giftCameraSubtitle">Pipi will receive it and send back a new Snap</p>
+      </div>
+      <div class="gift-capture-frame" aria-hidden="true">
+        <svg class="gift-frame-icon" viewBox="0 0 120 72"><path d="M60 70V47M60 47C46 13 19 5 14 22c-5 17 19 25 46 25ZM60 47C74 13 101 5 106 22c5 17-19 25-46 25Z"/></svg>
+      </div>
+      <div class="gift-camera-tip">Use good light and a clean background</div>
+      <button class="gift-camera-send" id="giftCameraSend" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg><span>Send to Pipi</span>
+      </button>
+      <div class="gift-camera-controls">
+        <button class="gift-camera-control gift-camera-close" id="giftCameraClose" type="button" aria-label="Exit camera">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
+        </button>
+        <button class="gift-camera-shutter" id="giftCameraShutter" type="button" aria-label="Capture gift"></button>
+        <button class="gift-camera-control gift-camera-gallery" id="giftCameraGallery" type="button" aria-label="Choose from photos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="14" height="14" rx="2"/><path d="m6 16 4-4 3 3 2-2 3 3M9 9h.01"/><path d="M8 3h12a2 2 0 0 1 2 2v12"/></svg>
+        </button>
+      </div>
+      <input class="gift-camera-input" id="giftCaptureInput" type="file" accept="image/*" capture="environment" />
+      <input class="gift-camera-input" id="giftGalleryInput" type="file" accept="image/*" />
+      <canvas class="gift-camera-input" id="giftCameraCanvas" aria-hidden="true"></canvas>
+    </section>
+
+    <div class="listen-badge" id="listenBadge" aria-hidden="true"><div class="bars"><i></i><i></i><i></i><i></i><i></i></div><span id="listenText">Listening…</span></div>
+
+    <section class="companion" id="companion" aria-hidden="true">
+      <div class="companion-backdrop" id="companionBackdrop"></div>
+      <div class="companion-panel">
+        <div class="companion-grab"></div>
+        <button class="companion-close" id="companionClose" aria-label="Close Companion">✕</button>
+        <div class="companion-body">
+          <div class="companion-pet">
+            <img id="companionImg" alt="Pipi">
+            <video id="companionVideo" autoplay loop muted playsinline></video>
+            <canvas id="companionCanvas" width="480" height="480" aria-hidden="true"></canvas>
+          </div>
+          <div class="companion-bubble" id="companionBubble">Pipi is here, listening.</div>
+          <button class="companion-mic" id="companionMic" aria-label="Hold to speak"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-view" id="profileView" aria-hidden="true">
+      <div class="profile-surface">
+        <button class="profile-close" id="profileClose" type="button" aria-label="Back to story"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="profile-heading">Pipi's profile</div>
+        <img class="profile-avatar" id="profileAvatar" alt="Pipi">
+        <div class="profile-card">
+          <div class="profile-row"><span>Name</span><strong>Pipi</strong></div>
+          <div class="profile-row"><span>Pet ID</span><strong>34842</strong></div>
+          <div class="profile-row"><span>Species</span><strong>Dog</strong></div>
+          <div class="profile-row"><span>Days in Furever</span><strong>84 days</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pet-picker" id="petPicker" aria-hidden="true">
+      <div class="pet-picker-backdrop" id="petPickerBackdrop"></div>
+      <div class="pet-picker-sheet">
+        <div class="pet-picker-grab"></div>
+        <button class="pet-picker-close" id="petPickerClose" type="button" aria-label="Close pet switcher">×</button>
+        <div class="pet-picker-title">Switch pet</div>
+        <button class="pet-option selected" type="button" aria-label="Current pet Pipi"><img src="./pipi-assets/pipi-avatar.png" alt=""><div class="pet-option-copy"><strong>Pipi</strong><span>Current pet · Day 84 in Furever</span></div><span class="pet-option-check">✓</span></button>
+        <button class="pet-option" type="button" aria-label="Bao pet"><img src="./bao-assets/bao-avatar.png" alt=""><div class="pet-option-copy"><strong>Bao</strong><span>Another pet · Enter Bao space</span></div><span class="pet-option-check"></span></button>
+      </div>
+    </section>
+  </main>
+
+  <script src="./pet-video-assets.mock.js?v=pipi-1"></script>
+  <script src="./story-video-assets.mock.js?v=pipi-2"></script>
+  <script src="./pipi-daily-stories.mock.js?v=prod-snapshot-20260907"></script>
+  <script src="./pet-video-player.js"></script>
+  <script>
+    const AVATAR = './pipi-assets/pipi-avatar.png';
+    const COMPANION_POSTER = './pipi-assets/pipi-avatar.png';
+    const STORY_VIDEOS = window.STORY_VIDEO_ASSETS || [];
+    const DAILY_STORIES = window.PIPI_DAILY_STORIES?.days || {};
+    const storyVideoById = id => STORY_VIDEOS.find(asset => asset.id === String(id));
+    const storyForDate = date => DAILY_STORIES[date] || [];
+    const storyEventById = (date, activityId) => storyForDate(date).find(event => String(event.id) === String(activityId));
+    const IMG = { latest: STORY_VIDEOS[0]?.imageUrl || AVATAR };
+    const snapShot = (asset, mode = 'video') => {
+      const event = storyEventById(asset?.date, asset?.activityId);
+      return {
+      img: asset?.imageUrl || AVATAR, imageCandidate: asset?.imageUrl || AVATAR,
+      video: mode === 'video' ? (asset?.videoUrl || '') : '', videoCandidate: asset?.videoUrl || '', poster: asset?.posterUrl || asset?.imageUrl || AVATAR,
+      mediaType: mode === 'video' && asset?.videoUrl ? 'video' : 'image', assetId: asset?.id || 'fallback', activityId: asset?.activityId,
+      title: event?.title || asset?.title || 'Pipi', os: event?.text || asset?.description || '', innerThoughts: event?.os || '', time: event?.time || ''
+      };
+    };
+    const storyMeta = (date, fallbackTitle) => {
+      const story = storyForDate(date);
+      const times = story.map(event => event.time).filter(Boolean).sort();
+      return {
+        story,
+        storyTitle: fallbackTitle,
+        storyIntro: story.length ? `${story.length} fragments · ${times[0]}–${times[times.length - 1]}` : ''
+      };
+    };
+    const nextEvent = (date, activityId) => {
+      const story = storyForDate(date);
+      const index = story.findIndex(event => String(event.id) === String(activityId));
+      return story[index + 1] || story[index] || {};
+    };
+    const latestNext = nextEvent('2026-07-30', '14208781');
+    const storyPreviewShot = event => ({
+      mediaType:'preview', img:IMG.latest, activityId:event?.id,
+      title:event?.title || 'Next moment', os:event?.text || '', innerThoughts:event?.os || '',
+      previewEvent:event || {}
+    });
+    const DAYS = [
+      { day:84, date:'Jul 30', world:'Silvergrass & Slow Trails', ...storyMeta('2026-07-30', 'Pipi Story'), guide:latestNext.text, nextStory:latestNext.text, nextTitle:latestNext.title, title:'The Sudden Whirlwind', shots:[
+        snapShot(storyVideoById('532519'), 'image'),
+        storyPreviewShot(latestNext)
+      ]},
+      { day:77, date:'Jul 23', world:'Blue Flowers & Acorns', ...storyMeta('2026-07-23', 'Pipi Story'), title:'Bound Through the Blue', shots:[
+        snapShot(storyVideoById('512374'), 'image')
+      ]},
+      { day:76, date:'Jul 22', world:'Waterfall Canyon', ...storyMeta('2026-07-22', 'Pipi Story'), title:'A Leap of Water', shots:[
+        snapShot(storyVideoById('509561'), 'video')
+      ]},
+      { day:75, date:'Jul 21', world:'Tide & Pine Wind', ...storyMeta('2026-07-21', 'Pipi Story'), title:'The Spinning Seal', shots:[
+        snapShot(storyVideoById('506511'), 'video')
+      ]},
+      { day:74, date:'Jul 20', world:'Tidal Grotto Glow', ...storyMeta('2026-07-20', 'Pipi Story'), title:'The Spiral Resumes', shots:[
+        snapShot(storyVideoById('503603'), 'video'),
+        snapShot(storyVideoById('503626'), 'video')
+      ]}
+    ];
+
+    const SKILLS = [
+      { key:'petting', action:'sphinx-blink' },
+      { key:'highfive', action:'stretch-yawn' }
+    ];
+
+    const el = id => document.getElementById(id);
+    const daysTrack = el('daysTrack'), dayRail = el('dayRail'), shotDots = el('shotDots');
+    const viewport = el('daysViewport');
+    const generationGuide = el('generationGuide'), generationGuideText = el('generationGuideText'), generationStory = el('generationStory');
+    const nextStory = el('nextStory'), nextHint = el('nextHint');
+    const storyButtons = [...document.querySelectorAll('.story-open')];
+    storyButtons.slice(1).forEach(button => button.remove());
+    const storyDateRow = document.querySelector('.caption-date-row');
+    if (storyDateRow && storyButtons[0] && !storyDateRow.contains(storyButtons[0])) storyDateRow.appendChild(storyButtons[0]);
+    const storySheet = el('storySheet'), storyOpenButton = el('storyOpen');
+    let treatsBalance = 288, generationPending = false, storySheetOpen = false, generationTarget = latestNext;
+
+    function syncTreatBalance() {
+      document.querySelector('.treats-count').textContent = treatsBalance;
+    }
+
+    function revealGeneratedVideo(shot, s, d) {
+      s.video = s.videoCandidate; s.mediaType = 'video'; shot.classList.remove('story-shot'); shot.classList.add('video-shot');
+      const poster = document.createElement('img'); poster.className = 'story-poster'; poster.src = s.poster || s.img; poster.alt = s.title || d.title; poster.draggable = false;
+      const video = document.createElement('video'); video.className = 'story-video'; video.src = s.video; video.poster = s.poster || ''; video.muted = true; video.loop = true; video.playsInline = true; video.preload = 'metadata';
+      video.addEventListener('play', () => video.classList.add('playing')); video.addEventListener('pause', () => video.classList.remove('playing')); video.addEventListener('error', () => shot.classList.add('video-failed'));
+      const toggle = document.createElement('button'); toggle.className = 'story-video-toggle'; toggle.type = 'button'; toggle.setAttribute('aria-label', 'Play or pause scene video'); toggle.innerHTML = '<svg class="play-icon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></svg><svg class="pause-icon" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>';
+      toggle.addEventListener('pointerdown', e => e.stopPropagation()); toggle.addEventListener('click', e => { e.stopPropagation(); if (video.paused) video.play().catch(() => {}); else video.pause(); });
+      shot.replaceChildren(poster, video, toggle); syncStoryVideos();
+    }
+
+    // Build the feed DOM
+    let shotIndex = DAYS.map(() => 0);
+    DAYS.forEach((d, di) => {
+      const day = document.createElement('section');
+      day.className = 'day';
+      day.style.top = (di * 100) + '%';
+      const shots = document.createElement('div');
+      shots.className = 'shots-track';
+      d.shots.forEach((s, si) => {
+        const shot = document.createElement('div');
+        shot.className = 'shot';
+        shot.style.left = (si * 100) + '%';
+        if (s.mediaType === 'preview') {
+          shot.classList.add('moment-preview-shot');
+          const background = document.createElement('img');
+          background.className = 'moment-preview-bg'; background.src = s.img || IMG.latest; background.alt = ''; background.draggable = false;
+          const copy = document.createElement('div'); copy.className = 'moment-preview-copy';
+          const time = document.createElement('time'); time.className = 'moment-preview-time'; time.textContent = s.previewEvent?.time || '';
+          const title = document.createElement('h2'); title.textContent = s.title || 'Next moment';
+          const text = document.createElement('p'); text.textContent = s.os || '';
+          const thought = document.createElement('div'); thought.className = 'moment-preview-os'; thought.textContent = s.innerThoughts ? `“${s.innerThoughts}”` : '';
+      const snap = document.createElement('button'); snap.className = 'moment-snap-action'; snap.type = 'button'; snap.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Leave this moment · 1 Treat</span>';
+          snap.addEventListener('click', event => { event.stopPropagation(); triggerGeneration(s.previewEvent); });
+          copy.append(time, title, text, thought, snap); shot.append(background, copy);
+        } else if (s.mediaType === 'story') {
+          shot.classList.add('story-shot');
+          const copy = document.createElement('div'); copy.className = 'story-copy'; copy.innerHTML = `<small>${d.date}</small><h2>${s.title || d.title}</h2><p>${s.storyText || s.os || ''}</p>`;
+          const generate = document.createElement('button'); generate.className = 'story-generate-image'; generate.type = 'button'; generate.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 4-4 3 3 2-2 5 3"/></svg><span>Generate image</span>';
+          generate.addEventListener('pointerdown', e => e.stopPropagation()); generate.addEventListener('click', e => { e.stopPropagation(); if (generate.classList.contains('generating')) return; generate.classList.add('generating'); generate.querySelector('span').textContent = 'Generating…'; window.setTimeout(() => { s.img = s.imageCandidate || s.img; s.mediaType = 'image'; shot.classList.remove('story-shot'); const img = document.createElement('img'); img.src = s.img; img.alt = s.title || d.title; img.draggable = false; shot.replaceChildren(img); const videoBtn = document.createElement('button'); videoBtn.className = 'story-generate-video'; videoBtn.type = 'button'; videoBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></svg><span>Generate video</span>'; videoBtn.addEventListener('pointerdown', ev => ev.stopPropagation()); videoBtn.addEventListener('click', ev => { ev.stopPropagation(); videoBtn.classList.add('generating'); videoBtn.querySelector('span').textContent = 'Generating…'; window.setTimeout(() => revealGeneratedVideo(shot, s, d), 900); }); shot.appendChild(videoBtn); }, 900); });
+          copy.appendChild(generate); shot.appendChild(copy);
+        } else if (s.mediaType === 'video' && s.video) {
+          shot.classList.add('video-shot');
+          const poster = document.createElement('img');
+          poster.className = 'story-poster'; poster.src = s.poster || s.img; poster.alt = s.title || d.title; poster.draggable = false;
+          const video = document.createElement('video');
+          video.className = 'story-video'; video.src = s.video; video.poster = s.poster || ''; video.muted = true; video.loop = true; video.playsInline = true; video.preload = 'metadata'; video.setAttribute('aria-label', s.title || 'Scene video');
+          video.addEventListener('play', () => video.classList.add('playing'));
+          video.addEventListener('pause', () => video.classList.remove('playing'));
+          video.addEventListener('error', () => { shot.classList.add('video-failed'); console.warn('[StoryVideo] fallback to poster:', s.assetId || 'unknown asset'); });
+          const toggle = document.createElement('button');
+          toggle.className = 'story-video-toggle'; toggle.type = 'button'; toggle.setAttribute('aria-label', 'Play or pause scene video');
+          toggle.innerHTML = '<svg class="play-icon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></svg><svg class="pause-icon" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>';
+          toggle.addEventListener('pointerdown', event => event.stopPropagation());
+          toggle.addEventListener('click', event => { event.stopPropagation(); video.dataset.userPaused = video.paused ? 'false' : 'true'; if (video.paused) video.play().catch(() => {}); else video.pause(); });
+          shot.append(poster, video, toggle);
+        } else {
+          const img = document.createElement('img');
+          img.src = s.img; img.alt = s.title || d.title; img.draggable = false;
+          shot.appendChild(img);
+          if (s.videoCandidate) {
+            const generate = document.createElement('button');
+            generate.className = 'story-generate-video'; generate.type = 'button';
+            generate.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg><span>Generate video</span>';
+            generate.addEventListener('pointerdown', event => event.stopPropagation());
+            generate.addEventListener('click', event => {
+              event.stopPropagation();
+              if (generate.classList.contains('generating')) return;
+              generate.classList.add('generating');
+              generate.querySelector('span').textContent = 'Generating…';
+              window.setTimeout(() => {
+                s.video = s.videoCandidate; s.mediaType = 'video';
+                shot.classList.add('video-shot');
+                const poster = document.createElement('img');
+                poster.className = 'story-poster'; poster.src = s.poster || s.img; poster.alt = s.title || d.title; poster.draggable = false;
+                const video = document.createElement('video');
+                video.className = 'story-video'; video.src = s.video; video.poster = s.poster || ''; video.muted = true; video.loop = true; video.playsInline = true; video.preload = 'metadata';
+                video.addEventListener('play', () => video.classList.add('playing'));
+                video.addEventListener('pause', () => video.classList.remove('playing'));
+                video.addEventListener('error', () => { shot.classList.add('video-failed'); console.warn('[StoryVideo] generated asset failed:', s.assetId || 'unknown asset'); });
+                const toggle = document.createElement('button'); toggle.className = 'story-video-toggle'; toggle.type = 'button'; toggle.setAttribute('aria-label', 'Play or pause scene video');
+                toggle.innerHTML = '<svg class="play-icon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></svg><svg class="pause-icon" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>';
+                toggle.addEventListener('pointerdown', e => e.stopPropagation());
+                toggle.addEventListener('click', e => { e.stopPropagation(); video.dataset.userPaused = video.paused ? 'false' : 'true'; if (video.paused) video.play().catch(() => {}); else video.pause(); });
+                shot.replaceChildren(poster, video, toggle);
+                syncStoryVideos();
+              }, 900);
+            });
+            shot.appendChild(generate);
+          }
+        }
+        shots.appendChild(shot);
+      });
+      day.appendChild(shots);
+      daysTrack.appendChild(day);
+      dayRail.innerHTML += '<i></i>';
+    });
+
+    el('floatAvatar').src = AVATAR;
+    el('companionImg').src = COMPANION_POSTER;
+    const companionVideo = el('companionVideo');
+    const videoController = new PetVideoController({
+      video: companionVideo,
+      poster: COMPANION_POSTER,
+      assets: window.PET_VIDEO_ASSETS,
+      context: { userId: '322991457839353856', petId: '34842', species: 'dog', idleAction: 'curled-deep-sleep' },
+      onStateChange: () => {}
+    });
+
+    // Keep the generated MP4, but remove its chroma-key green at render time
+    // so the companion can use the soft reference background without exporting
+    // a second, lossy transparent video asset.
+    const companionCanvas = el('companionCanvas');
+    const companionCanvasCtx = companionCanvas.getContext('2d', { willReadFrequently: true });
+    let canvasFrame = 0;
+    function drawCompanionFrame() {
+      if (!companionVideo.videoWidth || companionVideo.readyState < 2) return;
+      companionCanvasCtx.drawImage(companionVideo, 0, 0, companionCanvas.width, companionCanvas.height);
+      const frame = companionCanvasCtx.getImageData(0, 0, companionCanvas.width, companionCanvas.height);
+      for (let i = 0; i < frame.data.length; i += 4) {
+        const r = frame.data[i], g = frame.data[i + 1], b = frame.data[i + 2];
+        const greenExcess = g - Math.max(r, b);
+        if (g > 95 && greenExcess > 24) {
+          frame.data[i + 3] = Math.max(0, 255 - Math.min(255, greenExcess * 9));
+        }
+      }
+      companionCanvasCtx.putImageData(frame, 0, 0);
+    }
+    function renderCompanionFrame() {
+      drawCompanionFrame();
+      if (!companionVideo.paused && !companionVideo.ended) canvasFrame = requestAnimationFrame(renderCompanionFrame);
+      else companionCanvas.classList.remove('playing');
+    }
+    companionVideo.addEventListener('play', () => {
+      cancelAnimationFrame(canvasFrame);
+      el('companionImg').classList.add('video-active');
+      companionCanvas.classList.add('playing');
+      renderCompanionFrame();
+    });
+    companionVideo.addEventListener('pause', () => {
+      cancelAnimationFrame(canvasFrame);
+      el('companionImg').classList.remove('video-active');
+      companionCanvas.classList.remove('playing');
+    });
+    companionVideo.addEventListener('error', () => {
+      el('companionImg').classList.remove('video-active');
+      companionCanvas.classList.remove('playing');
+    });
+
+    let dayIndex = 0;
+
+    function storyEventsForDay(d) {
+      const events = [...(d.story || d.shots.map(shot => ({ time:'', title:shot.title, text:shot.os })))];
+      return events.map(event => ({
+        ...event,
+        pending:generationPending && d === DAYS[0] && String(event.id) === String(generationTarget?.id)
+      }));
+    }
+
+    function renderStorySheet(scrollToCurrent = false) {
+      const d = DAYS[dayIndex];
+      const s = d.shots[shotIndex[dayIndex]];
+      const events = storyEventsForDay(d);
+      const currentTitle = (s?.title || '').replace(/\s/g, '');
+      const storyDate = d.storyDate || d.date || '';
+      const storyTime = s?.previewEvent?.time || s?.time || storyEventById(d.sourceDate, s?.activityId)?.time || '';
+      el('storySheetDate').textContent = [storyDate, storyTime].filter(Boolean).join(' · ');
+      el('storySheetTitle').textContent = d.world || d.storyTitle || d.title;
+      el('storySheetWorld').textContent = d.storyIntro || d.guide || '';
+
+      const eventList = el('storyEvents');
+      eventList.replaceChildren();
+      events.forEach(event => {
+        const row = document.createElement('article');
+        const isCurrent = s?.activityId
+          ? String(event.id) === String(s.activityId)
+          : (event.title || '').replace(/\s/g, '') === currentTitle;
+        const isGenerated = STORY_VIDEOS.some(asset => String(asset.activityId) === String(event.id));
+        row.className = `story-event${isCurrent ? ' current' : ''}${event.pending ? ' pending' : ''}`;
+        if (isCurrent) row.setAttribute('aria-current', 'true');
+
+        const time = document.createElement('time');
+        time.className = 'story-event-time';
+        time.textContent = event.time || '';
+        const copy = document.createElement('div');
+        copy.className = 'story-event-copy';
+        const titleRow = document.createElement('div');
+        titleRow.className = 'story-event-title-row';
+        const title = document.createElement('div'); title.className = 'story-event-title'; title.textContent = event.title || '';
+        titleRow.appendChild(title);
+        if (isGenerated || event.pending) {
+          const saved = document.createElement('span'); saved.className = 'story-event-saved'; saved.title = event.pending ? 'Developing this moment' : 'Moment saved';
+          saved.innerHTML = event.pending
+            ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg>'
+            : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg>';
+          titleRow.appendChild(saved);
+        } else if (dayIndex === 0) {
+          const snap = document.createElement('button'); snap.className = 'story-event-snap'; snap.type = 'button'; snap.title = 'Leave a Snap for this story'; snap.setAttribute('aria-label', `Leave a Snap for ${event.title || 'this story'}`);
+          snap.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+          snap.addEventListener('click', clickEvent => { clickEvent.stopPropagation(); openStoryPreview(event); });
+          titleRow.appendChild(snap);
+        }
+        const text = document.createElement('p');
+        text.className = 'story-event-text';
+        text.textContent = event.text || '';
+        copy.append(titleRow, text);
+        if (event.os) {
+          const innerThought = document.createElement('div');
+          innerThought.className = 'story-event-os';
+          innerThought.textContent = `“${event.os}”`;
+          copy.appendChild(innerThought);
+        }
+        row.append(time, copy);
+        eventList.appendChild(row);
+      });
+
+      if (scrollToCurrent) {
+        requestAnimationFrame(() => eventList.querySelector('.story-event.current')?.scrollIntoView({ block:'center' }));
+      }
+    }
+
+    function openStorySheet() {
+      storySheetOpen = true;
+      dragging = false;
+      renderStorySheet(true);
+      storySheet.classList.add('open');
+      storySheet.setAttribute('aria-hidden', 'false');
+      storyOpenButton.setAttribute('aria-expanded', 'true');
+      syncStoryVideos();
+      el('storySheetClose').focus({ preventScroll:true });
+    }
+
+    function closeStorySheet({ restoreFocus = true } = {}) {
+      if (!storySheetOpen) return;
+      storySheetOpen = false;
+      storySheet.classList.remove('open');
+      storySheet.setAttribute('aria-hidden', 'true');
+      storyOpenButton.setAttribute('aria-expanded', 'false');
+      syncStoryVideos();
+      if (restoreFocus) storyOpenButton.focus({ preventScroll:true });
+    }
+
+    function updateHud() {
+      const d = DAYS[dayIndex];
+      const s = d.shots[shotIndex[dayIndex]];
+      const isPreview = s.mediaType === 'preview';
+      const previewIndex = d.shots.findIndex(shot => shot.mediaType === 'preview');
+      const isBeforePreview = dayIndex === 0 && previewIndex > 0 && shotIndex[dayIndex] === previewIndex - 1;
+      document.querySelector('.caption').classList.toggle('story-hidden', s.mediaType === 'story' || isPreview);
+      el('hudDay').textContent = '';
+      el('hudWorld').textContent = s.world || d.world;
+      const shotTime = s.previewEvent?.time || s.time || storyEventById(d.sourceDate, s.activityId)?.time || '';
+      el('capKicker').textContent = `${d.date || d.storyDate || ''} · Day ${d.day} in Furever`;
+      el('capTime').textContent = shotTime;
+      el('capTitle').textContent = s.title || d.title;
+      el('capOs').textContent = s.os;
+      nextStory.classList.remove('on');
+      nextHint.classList.toggle('on', isBeforePreview && !generationPending);
+      nextStory.textContent = '';
+      nextHint.querySelector('span').textContent = 'More';
+      el('dateHint').textContent = '';
+      shotDots.innerHTML = d.shots.map((_, i) => `<i class="${i===shotIndex[dayIndex]?'active':''}"></i>`).join('');
+      [...dayRail.children].forEach((n, i) => n.classList.toggle('active', i === dayIndex));
+      el('todayAnchor').classList.toggle('on', dayIndex > 0);
+      generationGuide.classList.toggle('hidden', dayIndex !== 0);
+      generationStory.classList.toggle('hidden', dayIndex !== 0);
+      generationGuide.classList.toggle('generating', generationPending);
+      generationGuideText.innerHTML = generationPending ? 'Generating, please check back · Spent <strong>1 Treat</strong>' : `Explore the next moment · <strong>${treatsBalance > 0 ? '1 Treat' : 'No Treats'}</strong>`;
+      generationStory.textContent = generationPending ? 'A new story is taking shape in the light.' : (d.guide || 'Pipi is exploring the breeze.');
+      const previewButton = document.querySelector('.moment-snap-action');
+      if (previewButton) {
+        previewButton.disabled = generationPending || treatsBalance < 1;
+        previewButton.querySelector('span').textContent = generationPending ? 'Developing this moment' : (treatsBalance > 0 ? 'Leave this moment · 1 Treat' : 'Not enough Treats');
+      }
+      renderStorySheet();
+    }
+
+    function syncStoryVideos() {
+      const activeShot = daysTrack.children[dayIndex]?.querySelector('.shots-track')?.children[shotIndex[dayIndex]];
+      document.querySelectorAll('.story-video').forEach(video => {
+        if (storySheetOpen || document.querySelector('.companion.open, .gift-camera.open')) { video.pause(); return; }
+        const isActive = video.closest('.shot') === activeShot;
+        if (!isActive) { video.pause(); video.currentTime = 0; return; }
+        if (video.dataset.userPaused !== 'true') video.play().catch(() => {});
+      });
+    }
+
+    function syncPreviewShot() {
+      const d = DAYS[0];
+      const previewIndex = d.shots.findIndex(shot => shot.mediaType === 'preview');
+      if (previewIndex < 0) return;
+      const s = d.shots[previewIndex];
+      const node = daysTrack.children[0]?.querySelector('.shots-track')?.children[previewIndex];
+      if (!node) return;
+      node.querySelector('.moment-preview-bg').src = s.img || IMG.latest;
+      node.querySelector('.moment-preview-time').textContent = s.previewEvent?.time || '';
+      node.querySelector('h2').textContent = s.title || 'Next moment';
+      node.querySelector('p').textContent = s.os || '';
+      node.querySelector('.moment-preview-os').textContent = s.innerThoughts ? `“${s.innerThoughts}”` : '';
+    }
+
+    function openStoryPreview(targetEvent) {
+      if (!targetEvent || generationPending) return;
+      generationTarget = targetEvent;
+      const preview = DAYS[0].shots.find(shot => shot.mediaType === 'preview');
+      Object.assign(preview, {
+        activityId:targetEvent.id, title:targetEvent.title || 'Next moment', os:targetEvent.text || '',
+        innerThoughts:targetEvent.os || '', previewEvent:targetEvent
+      });
+      syncPreviewShot();
+      closeStorySheet({ restoreFocus:false });
+      dayIndex = 0;
+      shotIndex[0] = DAYS[0].shots.indexOf(preview);
+      applyTransforms(); updateHud();
+    }
+
+    function prependPendingShot(targetEvent) {
+      const d = DAYS[0];
+      if (generationPending) return;
+      generationPending = true;
+      generationTarget = targetEvent || generationTarget || latestNext;
+      d.shots.unshift({ img: IMG.latest, title:generationTarget.title || 'A new light draws near', os:generationTarget.text || 'A new story is being written. Check back soon.', activityId:generationTarget.id, pending:true });
+      const shots = daysTrack.children[0].querySelector('.shots-track');
+      [...shots.children].forEach((node, index) => { node.style.left = ((index + 1) * 100) + '%'; });
+      const pending = document.createElement('div');
+      pending.className = 'shot pending-shot'; pending.style.left = '0%';
+      const image = document.createElement('img'); image.src = IMG.latest; image.alt = 'Generating new highlight'; image.draggable = false;
+      pending.appendChild(image);
+      const copy = document.createElement('div'); copy.className = 'pending-shot-copy'; copy.innerHTML = '<span class="pending-spinner" aria-hidden="true"></span><strong>Developing this moment</strong><small>It will appear as today first image</small>';
+      pending.appendChild(copy); shots.insertBefore(pending, shots.firstChild);
+      shotIndex[0] = 0; dayIndex = 0; applyTransforms(); updateHud();
+    }
+
+    function triggerGeneration(targetEvent) {
+      if (dayIndex !== 0 || generationPending) return;
+      if (treatsBalance < 1) { updateHud(); return; }
+      treatsBalance -= 1;
+      syncTreatBalance();
+      prependPendingShot(targetEvent);
+    }
+
+    function applyTransforms() {
+      daysTrack.style.transform = `translateY(-${dayIndex * 100}%)`;
+      const shot = daysTrack.children[dayIndex].querySelector('.shots-track');
+      shot.style.transform = `translateX(-${shotIndex[dayIndex] * 100}%)`;
+      syncStoryVideos();
+    }
+
+    // Swipe navigation
+    let startX=0, startY=0, axis=null, dragging=false, dragDX=0, dragDY=0;
+    viewport.addEventListener('pointerdown', e => {
+      if (storySheetOpen || e.target.closest('button')) return;
+      dragging = true; axis = null; dragDX = 0; dragDY = 0;
+      startX = e.clientX; startY = e.clientY;
+      viewport.setPointerCapture(e.pointerId);
+    }, { capture:true });
+    viewport.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (axis === 'x') {
+        dragDX = dx;
+        daysTrack.style.transform = `translateY(-${dayIndex*100}%)`;
+        const shot = daysTrack.children[dayIndex].querySelector('.shots-track');
+        const vw = viewport.clientWidth;
+        shot.style.transform = `translateX(calc(-${shotIndex[dayIndex]*100}% + ${dx}px))`;
+      } else if (axis === 'y') {
+        dragDY = dy;
+        const vh = viewport.clientHeight;
+        daysTrack.style.transform = `translateY(calc(-${dayIndex*100}% + ${dy}px))`;
+      }
+    });
+    function finishDrag() {
+      if (!dragging || storySheetOpen) return;
+      dragging = false;
+      if (axis === 'x') {
+        const vw = viewport.clientWidth;
+        if (dragDX < -vw*0.14 && shotIndex[dayIndex] < DAYS[dayIndex].shots.length-1) shotIndex[dayIndex]++;
+        else if (dragDX > vw*0.14 && shotIndex[dayIndex] > 0) shotIndex[dayIndex]--;
+      } else if (axis === 'y') {
+        const vh = viewport.clientHeight;
+        if (dragDY < -vh*0.18 && dayIndex < DAYS.length-1) dayIndex++;
+        else if (dragDY > vh*0.18 && dayIndex > 0) dayIndex--;
+      }
+      applyTransforms(); updateHud();
+    }
+    viewport.addEventListener('pointerup', finishDrag);
+    viewport.addEventListener('pointercancel', finishDrag);
+    viewport.addEventListener('lostpointercapture', finishDrag);
+
+    storyOpenButton.addEventListener('click', openStorySheet);
+    el('storySheetClose').addEventListener('click', () => closeStorySheet());
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && storySheetOpen) closeStorySheet();
+    });
+
+    // Gift camera with native capture fallback
+    const giftCamera = el('giftCamera'), giftLaunch = el('giftLaunch'), giftToast = el('giftToast');
+    const giftCameraVideo = el('giftCameraVideo'), giftCameraPhoto = el('giftCameraPhoto');
+    const giftCaptureInput = el('giftCaptureInput'), giftGalleryInput = el('giftGalleryInput');
+    let giftCameraOpen = false, giftCameraStream = null, giftPhotoUrl = '', giftToastTimer = null;
+    function showGiftToast(message) {
+      clearTimeout(giftToastTimer);
+      giftToast.textContent = message;
+      giftToast.classList.add('on');
+      giftToastTimer = setTimeout(() => giftToast.classList.remove('on'), 1800);
+    }
+    function stopGiftCamera() {
+      giftCameraStream?.getTracks().forEach(track => track.stop());
+      giftCameraStream = null;
+      giftCameraVideo.srcObject = null;
+      giftCamera.classList.remove('live');
+    }
+    async function startGiftCamera() {
+      if (!navigator.mediaDevices?.getUserMedia || !giftCameraOpen) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:'environment' } }, audio:false });
+        if (!giftCameraOpen) { stream.getTracks().forEach(track => track.stop()); return; }
+        giftCameraStream = stream;
+        giftCameraVideo.srcObject = stream;
+        giftCamera.classList.add('live');
+        await giftCameraVideo.play();
+      } catch (error) {
+        console.info('[GiftCamera] Live preview unavailable; native capture fallback remains available.');
+      }
+    }
+    function resetGiftPhoto() {
+      if (giftPhotoUrl) URL.revokeObjectURL(giftPhotoUrl);
+      giftPhotoUrl = '';
+      giftCameraPhoto.removeAttribute('src');
+      giftCamera.classList.remove('captured');
+      el('giftCameraSubtitle').textContent = 'Pipi will receive it and send back a new Snap';
+    }
+    function openGiftCamera() {
+      closeStorySheet({ restoreFocus:false });
+      giftCameraOpen = true;
+      resetGiftPhoto();
+      giftCamera.classList.add('open');
+      giftCamera.setAttribute('aria-hidden','false');
+      giftLaunch.setAttribute('aria-expanded','true');
+      syncStoryVideos();
+      startGiftCamera();
+    }
+    function closeGiftCamera({ restoreFocus = true } = {}) {
+      if (!giftCameraOpen) return;
+      giftCameraOpen = false;
+      stopGiftCamera();
+      resetGiftPhoto();
+      giftCamera.classList.remove('open');
+      giftCamera.setAttribute('aria-hidden','true');
+      giftLaunch.setAttribute('aria-expanded','false');
+      syncStoryVideos();
+      if (restoreFocus) giftLaunch.focus({ preventScroll:true });
+    }
+    function showGiftPhoto(file) {
+      if (!file) return;
+      if (giftPhotoUrl) URL.revokeObjectURL(giftPhotoUrl);
+      giftPhotoUrl = URL.createObjectURL(file);
+      giftCameraPhoto.src = giftPhotoUrl;
+      giftCamera.classList.add('captured');
+      el('giftCameraSubtitle').textContent = 'Send this gift to Pipi?';
+      stopGiftCamera();
+    }
+    function captureGiftFrame() {
+      if (!giftCameraStream || !giftCameraVideo.videoWidth) { giftCaptureInput.click(); return; }
+      const canvas = el('giftCameraCanvas');
+      canvas.width = giftCameraVideo.videoWidth;
+      canvas.height = giftCameraVideo.videoHeight;
+      canvas.getContext('2d').drawImage(giftCameraVideo, 0, 0, canvas.width, canvas.height);
+      giftCameraPhoto.src = canvas.toDataURL('image/jpeg', .9);
+      giftCamera.classList.add('captured');
+      el('giftCameraSubtitle').textContent = 'Send this gift to Pipi?';
+      stopGiftCamera();
+    }
+    giftLaunch.addEventListener('click', openGiftCamera);
+    el('giftCameraClose').addEventListener('click', () => closeGiftCamera());
+    el('giftCameraShutter').addEventListener('click', () => {
+      if (giftCamera.classList.contains('captured')) { resetGiftPhoto(); startGiftCamera(); return; }
+      captureGiftFrame();
+    });
+    el('giftCameraGallery').addEventListener('click', () => giftGalleryInput.click());
+    giftCaptureInput.addEventListener('change', () => { showGiftPhoto(giftCaptureInput.files?.[0]); giftCaptureInput.value = ''; });
+    giftGalleryInput.addEventListener('change', () => { showGiftPhoto(giftGalleryInput.files?.[0]); giftGalleryInput.value = ''; });
+    el('giftCameraSend').addEventListener('click', () => {
+      closeGiftCamera({ restoreFocus:false });
+      showGiftToast('Gift sent to Pipi. A new Snap is on the way');
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && giftCameraOpen) closeGiftCamera();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopGiftCamera();
+      else if (giftCameraOpen && !giftCamera.classList.contains('captured')) startGiftCamera();
+    });
+
+    // Companion overlay
+    const companion = el('companion'), mic = el('companionMic'), bubble = el('companionBubble');
+    function openCompanion({ autoListen = false } = {}) {
+      closeStorySheet({ restoreFocus:false });
+      closeGiftCamera({ restoreFocus:false });
+      companion.classList.add('open');
+      companion.setAttribute('aria-hidden','false');
+      syncStoryVideos();
+      videoController.setState('idle');
+      videoController.resume();
+      bubble.textContent = 'Pipi is here, listening.';
+      if (autoListen) requestAnimationFrame(() => startListening());
+    }
+    function closeCompanion() {
+      companion.classList.remove('open');
+      companion.setAttribute('aria-hidden','true');
+      mic.classList.remove('listening');
+      listening = false;
+      clearTimeout(routeTimer);
+      listenBadge.classList.remove('on');
+      videoController.pause();
+      syncStoryVideos();
+    }
+    el('floatPet').addEventListener('click', () => openCompanion({ autoListen:true }));
+    el('companionLaunch').addEventListener('click', () => openCompanion());
+    el('companionBackdrop').addEventListener('click', closeCompanion);
+    el('companionClose').addEventListener('click', closeCompanion);
+    el('todayAnchor').addEventListener('click', () => { dayIndex = 0; applyTransforms(); updateHud(); });
+
+    // Header identity actions: the name opens profile, the switch icon opens
+    // the multi-pet entry point without interrupting the feed or companion.
+    const profileView = el('profileView'), petPicker = el('petPicker');
+    el('profileAvatar').src = AVATAR;
+    function openProfileView() { profileView.classList.add('open'); profileView.setAttribute('aria-hidden','false'); }
+    function closeProfileView() { profileView.classList.remove('open'); profileView.setAttribute('aria-hidden','true'); }
+    function openPetPicker() { petPicker.classList.add('open'); petPicker.setAttribute('aria-hidden','false'); }
+    function closePetPicker() { petPicker.classList.remove('open'); petPicker.setAttribute('aria-hidden','true'); }
+    el('profileTrigger').addEventListener('click', openProfileView);
+    el('profileClose').addEventListener('click', closeProfileView);
+    el('petSwitch').addEventListener('click', openPetPicker);
+    el('petPickerClose').addEventListener('click', closePetPicker);
+    el('petPickerBackdrop').addEventListener('click', closePetPicker);
+
+    // Voice: hold to listen, transcribe, detect intent, route to skill
+    const listenBadge = el('listenBadge');
+    let listening = false, routeTimer = null;
+    function routeSkill(key) {
+      const s = SKILLS.find(item => item.key === key) || SKILLS[0];
+      videoController.setState('responding', { action: s.action || s.key, loop: false });
+      bubble.textContent = s.key === 'petting' ? 'Pipi relaxes and curls into a cozy ball.' : 'Pipi lifts their head, ready to answer your voice.';
+    }
+    function startListening(e) {
+      if (e) e.preventDefault();
+      if (listening || !companion.classList.contains('open')) return;
+      clearTimeout(routeTimer);
+      routeTimer = null;
+      listening = true;
+      mic.classList.add('listening');
+      bubble.textContent = 'Listening…';
+      videoController.setState('listening');
+      listenBadge.classList.add('on');
+      el('listenText').textContent = 'Listening…';
+    }
+    function stopListening(e) {
+      if (e) e.preventDefault();
+      if (!listening) return;
+      listening = false;
+      bubble.textContent = 'Got it…';
+      el('listenText').textContent = 'Thinking…';
+      videoController.setState('processing');
+      routeTimer = setTimeout(() => {
+        const s = SKILLS[Math.floor(Math.random() * SKILLS.length)];
+        routeSkill(s.key);
+        mic.classList.remove('listening');
+        listenBadge.classList.remove('on');
+        routeTimer = null;
+      }, 650);
+    }
+    mic.addEventListener('pointerdown', startListening);
+    mic.addEventListener('pointerup', stopListening);
+    mic.addEventListener('pointercancel', stopListening);
+    mic.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') startListening(e); });
+    mic.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') stopListening(e); });
+
+    updateHud(); applyTransforms();
+  </script>
+</body>
+</html>
