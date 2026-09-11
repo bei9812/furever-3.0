@@ -367,7 +367,7 @@
       <div class="pet-hud">
         <div class="who">
           <div class="pet-identity">
-            <button class="pet-name-button" id="profileTrigger" type="button" aria-label="View Pipi profile"><b id="hudName">Pipi</b></button>
+            <button class="pet-name-button" id="profileTrigger" type="button" aria-label="Pipi"><b id="hudName">Pipi</b></button>
             <button class="pet-switch" id="petSwitch" type="button" aria-label="Switch pet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-3-3M19 16H5l3 3"/></svg></button>
             <span id="hudDay"></span>
           </div>
@@ -1317,17 +1317,30 @@
     .app-shell.v9-shell.feed-mode > .hud-bottom .shot-dots { display:flex; }
     .app-shell.v9-shell.feed-mode > .hud-bottom .story-open { display:none!important; }
     .app-shell.v9-shell.feed-mode > .hud-bottom .caption-date-row { display:block; }
-    .app-shell.v9-shell .pet-hud { position:relative; padding-bottom:30px; }
+    .app-shell.v9-shell .pet-hud { position:relative; justify-content:flex-end; min-height:80px; padding-bottom:30px; }
+    .app-shell.v9-shell .pet-hud .who { position:absolute; left:76px; top:8px; transform:none; z-index:8; }
+    .app-shell.v9-shell .pet-identity { display:block; text-align:left; }
+    .app-shell.v9-shell .pet-name-button { min-width:0; padding:4px 6px; text-align:left; border-radius:0; background:transparent; backdrop-filter:none; text-shadow:0 2px 8px rgba(0,0,0,.34); pointer-events:none; }
+    .app-shell.v9-shell .pet-name-button::after { content:""; }
+    .app-shell.v9-shell .pet-hud .who span { display:none!important; }
     .app-shell.v9-shell .pet-switch { display:none!important; }
-    .app-shell.v9-shell .header-actions { flex-direction:row; align-items:center; gap:8px; transform:none; }
-    .app-shell.v9-shell .world-chip { position:absolute; left:0; top:39px; max-width:min(48vw,198px); margin-top:0; background:rgba(7,47,58,.5); }
+    .app-shell.v9-shell .header-actions { flex-direction:row; align-items:center; gap:8px; transform:none; margin-left:auto; }
+    .app-shell.v9-shell .utility-strip > button[aria-label="Notifications"] { display:grid!important; }
+    .app-shell.v9-shell .utility-strip > button[aria-label="Settings"] { display:none!important; }
+    .app-shell.v9-shell .world-chip { position:absolute; left:18px; top:60px; max-width:min(50vw,210px); margin-top:0; background:rgba(7,47,58,.5); }
     .app-shell.v9-shell .v9-latest-jump { position:absolute; right:0; top:39px; display:none; align-items:center; gap:5px; height:26px; padding:0 11px; border-radius:999px; color:#e9fbf3; background:rgba(8,34,18,.54); box-shadow:0 5px 16px rgba(0,0,0,.18); font-size:11px; font-weight:760; backdrop-filter:blur(8px); }
     .app-shell.v9-shell.feed-mode .v9-latest-jump { display:inline-flex; }
+    .v9-pet-dropdown { display:none!important; }
+    .v9-pet-dropdown.open { display:block; animation:v9MenuIn .18s ease both; }
+    .v9-pet-dropdown button { width:100%; display:flex; align-items:center; justify-content:space-between; padding:10px 11px; border-radius:13px; color:#f3fff5; font-size:12px; font-weight:690; text-align:left; }
+    .v9-pet-dropdown button:active { background:rgba(255,255,255,.12); }
+    .v9-pet-dropdown span { color:rgba(231,247,233,.58); font-size:11px; font-weight:600; }
+    @keyframes v9MenuIn { from{opacity:0;transform:translateX(-50%) translateY(-3px)} to{opacity:1;transform:translateX(-50%) translateY(4px)} }
     .scene-shot { background:#0d5262; }
     .scene-shot::after { display:none; }
     .scene-shot img { object-fit:cover!important; background:#0d5262; }
     .app-shell.v9-shell > .gift-camera.open { display:block!important; z-index:90!important; }
-    .v9-home { position:absolute; inset:0; display:flex; flex-direction:column; background:#f4f1e8; z-index:40; }
+    .v9-home { --v9-rail-right:20px; --v9-rail-gutter:54px; position:absolute; inset:0; display:flex; flex-direction:column; background:#f4f1e8; z-index:40; }
     .v9-top { position:absolute; z-index:6; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:calc(13px + var(--safe-top)) 18px 10px; color:#fff; background:linear-gradient(180deg,rgba(6,22,13,.5),transparent); border-bottom:0; text-shadow:0 2px 8px rgba(0,0,0,.44); }
     .v9-identity { display:flex; align-items:center; gap:9px; min-width:0; }
     .v9-identity button { text-align:left; }
@@ -1350,17 +1363,27 @@
     .v9-home:not(.story-expanded) .v9-story-wrap { opacity:0; pointer-events:none; }
     .v9-home:not(.reveal-story) .v9-story-wrap { opacity:0; pointer-events:none; transform:translateY(-100%); }
     .v9-home:not(.reveal-story) .v9-scene::after { opacity:.25; }
-    .v9-story-reveal { position:absolute; z-index:2; left:0; right:0; bottom:0; min-height:38%; display:flex; flex-direction:column; justify-content:flex-end; padding:28px 21px calc(126px + var(--safe-bottom)); color:#fff; background:linear-gradient(180deg,transparent 0%,rgba(4,38,49,.08) 18%,rgba(7,39,43,.72) 100%); opacity:0; transform:translateY(12px); transition:opacity .8s ease,transform .8s ease; pointer-events:none; text-shadow:0 2px 12px rgba(0,0,0,.52); }
-    .v9-story-reveal span { color:rgba(241,249,241,.76); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
-    .v9-story-reveal strong { max-width:320px; margin-top:7px; font-size:20px; line-height:1.25; font-weight:730; }
-    .v9-story-reveal small { align-self:flex-start; margin-top:12px; padding:5px 9px; border-radius:999px; color:#16454a; background:rgba(255,226,134,.9); box-shadow:0 5px 16px rgba(0,0,0,.18); font-size:11px; font-weight:760; text-shadow:none; }
+    .v9-story-reveal { position:absolute; z-index:2; left:18px; right:var(--v9-rail-gutter); top:48%; display:block; padding:16px 16px 14px; border:1px solid rgba(255,255,255,.22); border-radius:24px; color:#fff; background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.07)); box-shadow:0 18px 38px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.22); backdrop-filter:blur(18px) saturate(1.15); opacity:0; transform:translateY(calc(-50% + 12px)); transition:opacity .8s ease,transform .8s ease; pointer-events:none; text-shadow:0 2px 12px rgba(0,0,0,.42); }
+    .v9-story-card-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .v9-story-card-top > span { color:rgba(241,249,241,.76); font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+    .v9-read-story { flex:0 0 auto; min-height:24px; padding:0 10px; border-radius:999px; color:#183f33; background:rgba(199,255,148,.9); box-shadow:0 5px 14px rgba(0,0,0,.16); font-size:10px; font-weight:820; text-shadow:none; }
+    .v9-story-reveal strong { display:block; max-width:320px; margin-top:10px; font-size:21px; line-height:1.15; font-weight:770; }
+    .v9-story-reveal p { margin:8px 0 0; color:rgba(244,252,246,.82); font-size:13px; line-height:1.48; }
+    .v9-pet-quote { display:flex; align-items:center; gap:9px; margin-top:12px; }
+    .v9-pet-quote img { flex:0 0 auto; width:34px; height:34px; object-fit:cover; border-radius:50%; border:3px solid #fff; filter:drop-shadow(0 4px 8px rgba(0,0,0,.2)); }
+    .v9-pet-quote b { position:relative; display:inline-flex; align-items:center; min-height:32px; padding:0 16px; border-radius:999px; color:#fff; background:rgba(89,50,22,.38); font-size:15px; font-weight:710; text-shadow:none; }
+    .v9-pet-quote b::before { content:""; position:absolute; left:-13px; bottom:5px; width:9px; height:9px; border-radius:50%; background:rgba(89,50,22,.34); box-shadow:-13px 3px 0 rgba(89,50,22,.28); }
+    .v9-story-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .v9-teaser-capture { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:42px; padding:0 28px; border-radius:999px; color:#193220; background:#a8ff43; box-shadow:0 9px 20px rgba(0,0,0,.2); backdrop-filter:blur(8px); font-size:18px; font-weight:850; text-shadow:none; }
+    .v9-teaser-capture svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+    .v9-teaser-capture.capturing { background:rgba(255,255,255,.18); animation:v9capture .72s ease both; }
     .v9-story-reveal i { display:none; }
     .v9-story-reveal i::before,.v9-story-reveal i::after { content:""; width:5px; height:5px; border-radius:50%; background:#f4dda4; animation:storyDot 1.2s ease-in-out infinite; }
     .v9-story-reveal i::after { animation-delay:.22s; opacity:.58; }
-    .v9-home.reveal-story:not(.story-expanded) .v9-story-reveal { opacity:1; transform:translateY(0); pointer-events:auto; }
+    .v9-home.reveal-story:not(.story-expanded) .v9-story-reveal { opacity:1; transform:translateY(-50%); pointer-events:auto; }
     .v9-home.story-expanded .v9-story-reveal { opacity:0; pointer-events:none; }
     @keyframes storyDot { 0%,100%{transform:translateY(0);opacity:.35} 50%{transform:translateY(-3px);opacity:1} }
-    .v9-home-rail { position:absolute; z-index:3; right:16px; top:50%; display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0; transform:translateY(-50%); transition:opacity .5s ease; pointer-events:none; }
+    .v9-home-rail { position:absolute; z-index:3; right:var(--v9-rail-right); top:50%; display:flex; flex-direction:column; align-items:center; gap:9px; opacity:0; transform:translateY(-50%); transition:opacity .5s ease; pointer-events:none; }
     .v9-home.reveal-story .v9-home-rail { opacity:1; }
     .v9-home-rail i { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.5); box-shadow:0 1px 5px rgba(0,0,0,.28); }
     .v9-home-rail i.active { width:6px; height:24px; border-radius:99px; background:#fff3b9; }
@@ -1369,7 +1392,7 @@
     .v9-eyebrow { font-size:11px; font-weight:680; letter-spacing:.08em; text-transform:uppercase; opacity:.84; }
     .v9-theme { margin-top:6px; font-size:26px; line-height:1.12; font-weight:760; }
     .v9-scene-intro { margin:8px 0 0; max-width:340px; font-size:13px; line-height:1.55; opacity:.93; }
-    .v9-story-wrap { position:absolute; z-index:4; left:0; right:0; bottom:0; max-height:62svh; padding:24px 22px calc(116px + var(--safe-bottom)); border-radius:0; color:#fff; background:linear-gradient(180deg,transparent 0%,rgba(6,38,43,.62) 22%,rgba(6,34,34,.88) 100%); box-shadow:none; transform:translateY(0); opacity:1; transition:opacity .35s ease, transform .4s cubic-bezier(.22,.61,.36,1); text-shadow:0 2px 12px rgba(0,0,0,.5); }
+    .v9-story-wrap { position:absolute; z-index:4; left:0; right:0; bottom:0; max-height:62svh; padding:24px var(--v9-rail-gutter) calc(116px + var(--safe-bottom)) 22px; border-radius:0; color:#fff; background:linear-gradient(180deg,transparent 0%,rgba(6,38,43,.62) 22%,rgba(6,34,34,.88) 100%); box-shadow:none; transform:translateY(0); opacity:1; transition:opacity .35s ease, transform .4s cubic-bezier(.22,.61,.36,1); text-shadow:0 2px 12px rgba(0,0,0,.5); }
     .v9-home.story-expanded .v9-story-wrap { z-index:8; top:0; max-height:none; min-height:100%; padding-top:calc(214px + var(--safe-top)); padding-bottom:calc(98px + var(--safe-bottom)); background:linear-gradient(180deg,rgba(7,46,54,0) 0%,rgba(7,45,52,.03) 13%,rgba(6,38,43,.28) 31%,rgba(5,31,32,.86) 58%,rgba(5,31,32,.96) 100%); transform:translateY(0); }
     .v9-home.story-expanded .v9-top { opacity:0; pointer-events:none; }
     .v9-story-wrap::before,.v9-story-wrap::after { display:none; }
@@ -1404,12 +1427,12 @@
     .v9-media-tools { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; color:#47634d; font-size:10px; }
     .v9-media-tools button { display:inline-flex; align-items:center; gap:5px; color:#315b3d; font-size:10px; font-weight:720; }
     .v9-media-tools svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-    .v9-bottom { position:absolute; z-index:60; left:0; right:0; bottom:0; display:flex; align-items:flex-end; justify-content:center; padding:10px 25px calc(13px + var(--safe-bottom)); background:transparent; pointer-events:none; }
-    .v9-home.story-expanded ~ .v9-bottom { opacity:0; pointer-events:none; }
+    .v9-bottom { position:absolute; z-index:60; inset:0; display:flex; align-items:flex-end; justify-content:center; padding:10px 25px calc(13px + var(--safe-bottom)); background:transparent; pointer-events:none; }
+    .v9-home.story-expanded ~ .v9-bottom { opacity:1; pointer-events:none; }
     .v9-bottom button { pointer-events:auto; }
-    .v9-bottom-home { position:absolute; left:25px; bottom:calc(13px + var(--safe-bottom)); width:58px; height:58px; display:grid; place-items:center; border-radius:50%; color:#fff; background:transparent; box-shadow:none; animation:v9homeFloat 3.8s ease-in-out infinite; }
-    .v9-bottom-home::before { content:""; position:absolute; inset:2px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.22),rgba(255,255,255,0) 68%); box-shadow:0 0 0 0 rgba(255,255,255,.35); animation:v9homePulse 2.4s ease-in-out infinite; }
-    .v9-bottom-home img { position:relative; z-index:1; width:50px; height:50px; object-fit:cover; border-radius:50%; border:1px solid rgba(255,255,255,.7); box-shadow:0 8px 22px rgba(0,0,0,.28); }
+    .v9-bottom-home { position:absolute; left:18px; top:calc(48px + var(--safe-top)); bottom:auto; width:50px; height:50px; display:grid; place-items:center; border-radius:50%; color:#fff; background:transparent; box-shadow:none; }
+    .v9-bottom-home::before { display:none; }
+    .v9-bottom-home img { position:relative; z-index:1; width:44px; height:44px; object-fit:cover; border-radius:50%; border:1px solid rgba(255,255,255,.7); box-shadow:0 8px 22px rgba(0,0,0,.28); }
     @keyframes v9homeFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
     @keyframes v9homePulse { 0%,100%{transform:scale(.86);opacity:.42} 50%{transform:scale(1.18);opacity:.9} }
     .v9-bottom-home .unread { position:absolute; top:0; right:0; width:12px; height:12px; border-radius:50%; background:#ed4d62; border:2px solid #f4f1e8; display:none; }
@@ -1417,12 +1440,88 @@
     .v9-main-mic { width:78px; height:78px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#326b45; border:5px solid #e2efe2; box-shadow:0 9px 26px rgba(37,83,51,.3),0 0 0 1px rgba(28,73,42,.2); transform:translateY(-5px); }
     .v9-main-mic svg { width:31px; height:31px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
     .v9-main-mic.listening { background:#d38c3e; }
+    .v9-main-mic.capture-mode { background:#d9a342; border-color:rgba(255,244,199,.94); box-shadow:0 10px 30px rgba(178,111,34,.34),0 0 0 1px rgba(255,255,255,.25); }
+    .v9-main-mic.capturing { animation:v9capture .72s ease both; }
+    .v9-main-mic.message-mode { background:transparent; color:#f4fff7; border-color:rgba(255,255,255,.76); box-shadow:0 10px 30px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.16); backdrop-filter:none; }
+    .v9-main-gift { position:absolute; right:22px; bottom:calc(112px + var(--safe-bottom)); width:58px; height:58px; display:grid; place-items:center; border-radius:50%; color:#fff7d9; background:transparent; border:2px solid rgba(255,255,255,.76); box-shadow:0 12px 26px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.12); pointer-events:auto; }
+    .v9-main-gift svg { width:29px; height:29px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .app-shell.v9-shell.feed-mode > .v9-bottom .v9-bottom-home,
+    .v9-home.story-expanded ~ .v9-bottom .v9-bottom-home { opacity:0; pointer-events:none; }
+    .app-shell.v9-shell.feed-mode .v9-main-gift,
+    .v9-home.story-expanded ~ .v9-bottom .v9-main-gift { display:grid; }
     .v9-voice-status { position:absolute; z-index:60; left:50%; bottom:calc(96px + var(--safe-bottom)); transform:translateX(-50%); max-width:78%; padding:5px 9px; border-radius:99px; color:#526457; background:rgba(244,241,232,.88); font-size:10px; text-align:center; opacity:0; transition:.2s; }
     .v9-voice-status.on { opacity:1; }
     .app-shell.v9-shell.sheet-open > .v9-bottom, .app-shell.v9-shell.sheet-open > .v9-voice-status { opacity:0; pointer-events:none; }
+    .app-shell.v9-shell.notifications-open > .hud-top,
+    .app-shell.v9-shell.notifications-open > .v9-bottom,
+    .app-shell.v9-shell.notifications-open > .v9-voice-status,
+    .app-shell.v9-shell.settings-open > .hud-top,
+    .app-shell.v9-shell.settings-open > .v9-bottom,
+    .app-shell.v9-shell.settings-open > .v9-voice-status,
+    .app-shell.v9-shell.pet-panel-open > .hud-top,
+    .app-shell.v9-shell.pet-panel-open > .v9-bottom,
+    .app-shell.v9-shell.pet-panel-open > .v9-voice-status { opacity:0; pointer-events:none; }
+    .v9-pet-switcher,.v9-profile-panel,.v9-settings-panel,.v9-notifications-panel { position:absolute; z-index:94; inset:0; color:#fff; background:linear-gradient(180deg,#236fa8 0%,#126099 22%,rgba(6,35,30,.92) 66%,rgba(24,46,6,.95) 100%); opacity:0; visibility:hidden; pointer-events:none; transform:translateY(-105%); transition:transform .42s cubic-bezier(.2,.84,.22,1),opacity .22s ease,visibility 0s linear .42s; }
+    .v9-pet-switcher.open,.v9-profile-panel.open,.v9-settings-panel.open,.v9-notifications-panel.open { opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0); transition:transform .42s cubic-bezier(.2,.84,.22,1),opacity .22s ease,visibility 0s; }
+    .v9-pet-switcher::before,.v9-profile-panel::before,.v9-settings-panel::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 36%),url('./v9-world-beach.png') center bottom/cover no-repeat; opacity:.18; filter:blur(10px); transform:scale(1.04); }
+    .v9-notifications-panel { color:#24282a; background:linear-gradient(180deg,#dceefa 0%,#d8e9f1 34%,#dfe5dc 100%); overflow-y:auto; padding-bottom:calc(40px + var(--safe-bottom)); }
+    .v9-pet-switcher,.v9-profile-panel,.v9-settings-panel,.v9-notifications-panel { scrollbar-width:none; }
+    .v9-pet-switcher::-webkit-scrollbar,.v9-profile-panel::-webkit-scrollbar,.v9-settings-panel::-webkit-scrollbar,.v9-notifications-panel::-webkit-scrollbar { display:none; }
+    .v9-pet-top { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; padding:calc(64px + var(--safe-top)) 22px 20px; }
+    .v9-pet-back { position:absolute; left:22px; top:calc(58px + var(--safe-top)); width:42px; height:42px; display:grid; place-items:center; color:#fff; }
+    .v9-pet-back svg { width:30px; height:30px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+    .v9-pet-title { font-size:24px; line-height:1; font-weight:790; letter-spacing:-.3px; text-align:center; text-shadow:0 3px 12px rgba(0,0,0,.24); }
+    .v9-pet-settings { position:absolute; right:22px; top:calc(58px + var(--safe-top)); width:42px; height:42px; display:grid; place-items:center; color:#fff; }
+    .v9-pet-settings svg { width:28px; height:28px; fill:none; stroke:currentColor; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; }
+    .v9-pet-card { position:relative; z-index:1; width:calc(100% - 44px); margin:42px auto 22px; padding:18px 18px 14px; border:3px solid #a8ff43; border-radius:28px; color:#1f1f1f; background:linear-gradient(145deg,#171717 0 18%,#f8f8f1 18% 82%,#171717 82% 100%); box-shadow:0 16px 34px rgba(0,0,0,.25); }
+    .v9-pet-card-head { display:flex; align-items:center; justify-content:space-between; color:#fff; font-size:15px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+    .v9-current-badge { padding:6px 16px; border-radius:0 22px 0 22px; color:#173100; background:#a8ff43; font-size:15px; font-weight:880; letter-spacing:0; text-transform:none; }
+    .v9-pet-card-body { display:grid; grid-template-columns:110px 1fr; gap:16px; align-items:center; margin-top:18px; padding:20px 18px; border-radius:22px; background:rgba(255,255,255,.92); box-shadow:inset 0 0 0 1px rgba(0,0,0,.04); }
+    .v9-pet-card-avatar { width:102px; height:102px; object-fit:cover; border-radius:50%; border:7px solid #fff; filter:drop-shadow(0 6px 8px rgba(0,0,0,.18)); }
+    .v9-pet-card-name { font-size:34px; line-height:1; font-weight:930; letter-spacing:-1px; text-transform:lowercase; text-shadow:0 3px 0 #fff,0 6px 8px rgba(0,0,0,.12); }
+    .v9-pet-card-facts { margin-top:12px; display:grid; gap:6px; color:#303030; font-size:17px; }
+    .v9-pet-card-id { margin-top:12px; color:#fff; text-align:right; font-size:13px; letter-spacing:.08em; }
+    .v9-add-pet { position:relative; z-index:1; width:calc(100% - 44px); margin:0 auto; display:grid; grid-template-columns:96px 1fr; gap:18px; align-items:center; padding:24px; border-radius:24px; color:#f4f4f0; background:rgba(30,30,30,.88); box-shadow:0 14px 30px rgba(0,0,0,.2); }
+    .v9-add-plus { width:78px; height:78px; display:grid; place-items:center; border:2px dashed #a8ff43; border-radius:18px; color:#a8ff43; font-size:58px; line-height:1; }
+    .v9-add-pet strong { display:block; font-size:25px; line-height:1.1; }
+    .v9-add-pet span { display:block; margin-top:7px; color:rgba(255,255,255,.58); font-size:16px; line-height:1.45; }
+    .v9-profile-panel { overflow-y:auto; padding-bottom:calc(36px + var(--safe-bottom)); }
+    .v9-profile-hero { position:relative; z-index:1; padding:calc(84px + var(--safe-top)) 22px 24px; text-align:center; }
+    .v9-profile-avatar { width:112px; height:112px; object-fit:cover; border-radius:50%; border:8px solid #fff; filter:drop-shadow(0 10px 14px rgba(0,0,0,.2)); }
+    .v9-profile-camera { position:absolute; left:50%; top:calc(166px + var(--safe-top)); width:42px; height:42px; display:grid; place-items:center; border-radius:50%; color:#111; background:#fff; box-shadow:0 5px 14px rgba(0,0,0,.25); transform:translateX(34px); }
+    .v9-profile-card { position:relative; z-index:1; width:calc(100% - 34px); margin:0 auto 22px; padding:22px 25px; border-radius:24px; color:#24282a; background:rgba(242,247,247,.9); box-shadow:0 16px 34px rgba(0,0,0,.18); backdrop-filter:blur(12px); }
+    .v9-profile-row { display:grid; grid-template-columns:1fr 1.35fr auto; gap:12px; align-items:center; min-height:42px; font-size:19px; }
+    .v9-profile-row span:first-child { color:rgba(20,24,26,.68); }
+    .v9-profile-row strong { font-size:21px; line-height:1.1; }
+    .v9-profile-row em { color:rgba(20,24,26,.48); font-style:normal; }
+    .v9-profile-row svg { width:18px; height:18px; fill:none; stroke:rgba(20,24,26,.36); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+    .v9-settings-panel { overflow-y:auto; padding-bottom:calc(38px + var(--safe-bottom)); }
+    .v9-settings-title { font-size:24px; font-weight:820; text-align:center; }
+    .v9-settings-group { position:relative; z-index:1; width:calc(100% - 34px); margin:18px auto 0; overflow:hidden; border-radius:24px; color:#272b2d; background:rgba(244,248,249,.9); box-shadow:0 16px 34px rgba(0,0,0,.18); backdrop-filter:blur(13px); }
+    .v9-settings-row { width:100%; min-height:74px; display:grid; grid-template-columns:34px 1fr 22px; gap:14px; align-items:center; padding:0 22px; color:#272b2d; font-size:19px; font-weight:760; text-align:left; }
+    .v9-settings-row + .v9-settings-row { border-top:1px solid rgba(34,45,44,.1); }
+    .v9-settings-row svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; opacity:.86; }
+    .v9-settings-row .chev { width:18px; height:18px; justify-self:end; opacity:.55; }
+    .v9-settings-signout { position:relative; z-index:1; width:calc(100% - 34px); min-height:68px; margin:74px auto 0; border-radius:24px; color:#ff3f79; background:rgba(244,248,249,.92); font-size:20px; font-weight:820; box-shadow:0 16px 34px rgba(0,0,0,.16); }
+    .v9-notifications-top { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; padding:calc(68px + var(--safe-top)) 22px 42px; }
+    .v9-notifications-top .v9-pet-back { color:#24282a; }
+    .v9-notifications-title { color:#24282a; font-size:24px; line-height:1; font-weight:820; text-align:center; }
+    .v9-read-all { position:absolute; right:22px; top:calc(66px + var(--safe-top)); min-height:42px; color:#24282a; font-size:18px; font-weight:800; }
+    .v9-notifications-list { position:relative; z-index:1; padding:0 26px; }
+    .v9-notification-item { position:relative; display:grid; grid-template-columns:56px 1fr; gap:16px; padding:22px 0; border-bottom:1px solid rgba(50,63,62,.14); text-align:left; }
+    .v9-notification-icon { position:relative; width:50px; height:50px; display:grid; place-items:center; border-radius:50%; color:#4b87ff; background:#dcebff; }
+    .v9-notification-icon.green { color:#436a2a; background:#d8ff9e; }
+    .v9-notification-icon svg { width:28px; height:28px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .v9-notification-dot { position:absolute; top:-2px; right:-4px; width:10px; height:10px; border-radius:50%; background:#ff4565; }
+    .v9-notification-item strong { display:block; color:#24282a; font-size:22px; line-height:1.2; font-weight:830; }
+    .v9-notification-item p { margin:8px 0 0; color:rgba(36,40,42,.8); font-size:19px; line-height:1.25; }
+    .v9-notification-item time { display:block; margin-top:8px; color:rgba(36,40,42,.46); font-size:16px; }
     .app-shell.v9-shell.companion-open > .hud-top { display:none!important; }
+    .app-shell.v9-shell.companion-open > .v9-bottom { display:none!important; }
+    .app-shell.v9-shell.companion-open.summon-open > .v9-home > .v9-home-scroll > .v9-scene > *:not(img) { opacity:0!important; pointer-events:none!important; }
     .v9-companion { position:absolute; z-index:96; inset:0; display:flex; flex-direction:column; color:#eff8f0; background:radial-gradient(circle at 50% 18%,#315d43 0,#173723 42%,#0c2115 100%); opacity:0; visibility:hidden; pointer-events:none; transition:opacity .25s ease,visibility 0s linear .3s; }
     .v9-companion.open { opacity:1; visibility:visible; pointer-events:auto; transition:opacity .25s ease,visibility 0s; }
+    .v9-companion.summon-mode { background:rgba(4,24,22,.44); backdrop-filter:blur(13px) saturate(1.06); }
     .v9-companion-head { position:absolute; z-index:8; top:calc(10px + var(--safe-top)); left:0; right:0; display:flex; justify-content:flex-end; padding:0 14px; pointer-events:none; }
     .v9-close { width:60px; height:60px; display:grid; place-items:center; border-radius:50%; color:#e7f5e9; background:rgba(255,255,255,.16); box-shadow:0 8px 18px rgba(0,0,0,.18); pointer-events:auto; }
     .v9-close svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; }
@@ -1464,12 +1563,16 @@
     .v9-companion-bubble { order:3; flex:0 0 auto; align-self:center; max-width:84%; min-height:30px; margin:3px auto 8px; padding:8px 13px; border-radius:14px; color:#eaf5eb; background:rgba(255,255,255,.1); font-size:12px; text-align:center; }
     .v9-companion-bottom { order:4; flex:0 0 auto; display:flex; align-items:center; justify-content:center; padding:3px 20px calc(16px + var(--safe-bottom)); }
     .v9-companion-mic,.v9-companion-gift { width:70px; height:70px; display:grid; place-items:center; border-radius:50%; color:#17311f; background:#e5f0e3; box-shadow:0 8px 22px rgba(0,0,0,.24); }.v9-companion-mic.listening{background:#f4c86d;}.v9-companion-mic svg,.v9-companion-gift svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-    .v9-companion-gift { position:absolute; z-index:4; right:18px; bottom:calc(142px + var(--safe-bottom)); width:54px; height:54px; color:#8a641c; background:#fff5d9; }
+    .v9-companion-gift { display:none!important; position:absolute; z-index:4; right:18px; bottom:calc(142px + var(--safe-bottom)); width:54px; height:54px; color:#8a641c; background:#fff5d9; }
     .v9-companion.response-mode .v9-history,.v9-companion.response-mode .v9-companion-gift { display:none; }
     .v9-companion.response-mode .v9-companion-pet { order:2; width:min(88vw,360px); height:min(58svh,430px); margin:auto; }
     .v9-companion.response-mode .v9-companion-bubble { order:3; margin:0 auto 12px; }
     .v9-companion.response-mode .v9-close { opacity:.45; pointer-events:none; }
     .v9-companion.response-mode.response-done .v9-close { opacity:1; pointer-events:auto; }
+    .v9-companion.summon-mode .v9-history { display:none; }
+    .v9-companion.summon-mode .v9-companion-pet { order:2; width:min(72vw,300px); height:min(42svh,330px); margin:auto auto 12px; }
+    .v9-companion.summon-mode .v9-companion-bubble { order:3; margin:0 auto 16px; background:rgba(255,255,255,.13); }
+    .v9-companion.summon-mode .v9-companion-bottom { order:4; padding-bottom:calc(32px + var(--safe-bottom)); }
     .v9-sheet { position:absolute; z-index:70; left:0; right:0; bottom:0; padding:22px 20px calc(22px + var(--safe-bottom)); border-radius:24px 24px 0 0; color:#203429; background:#fbfaf5; box-shadow:0 -12px 30px rgba(25,50,31,.2); transform:translateY(105%); transition:transform .3s ease; }.v9-sheet.open{transform:translateY(0);}.v9-sheet h3{margin:0;font-size:19px}.v9-sheet p{margin:8px 0 16px;color:#66756a;font-size:13px;line-height:1.55}.v9-sheet-close{padding:8px 12px;border-radius:999px;color:#fff;background:#326b45;font-size:11px;font-weight:720;}
     @media (max-height:700px){ .v9-theme{font-size:22px}.v9-story-wrap{max-height:70svh;padding-bottom:calc(96px + var(--safe-bottom))}.v9-article{max-height:calc(70svh - 180px)}.v9-companion-pet{height:96px;flex-basis:20%}.v9-companion-mic{width:62px;height:62px}.v9-companion-gift{width:50px;height:50px;bottom:calc(122px + var(--safe-bottom))}.v9-history-stack{min-height:285px;height:46svh} }
   `;
@@ -1536,7 +1639,7 @@
       </div>
     </header>
     <div class="v9-home-scroll">
-      <div class="v9-scene"><img src="./v9-world-beach.png" alt="A quiet beach world in Furever"><div class="v9-story-reveal"><span>Something is moving in Furever</span><strong>The shore is glowing, and Pipi has found a trail of shells.</strong><small>Tap to see what Pipi is doing</small><i aria-hidden="true"></i></div><div class="v9-home-rail" aria-hidden="true"><i class="active"></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="v9-scene"><img src="./v9-world-beach.png" alt="A quiet beach world in Furever"><div class="v9-story-reveal"><div class="v9-story-card-top"><span>Today's story</span><button class="v9-read-story" type="button">Read the full day’s story</button></div><strong>The Tide Writes Back</strong><p>A warm shoreline opens in Furever. Pipi follows the hush between each soft rush of foam.</p><div class="v9-pet-quote"><img src="${AVATAR}" alt="Pipi"><b>Keep it here.</b></div><div class="v9-story-actions"><button class="v9-teaser-capture" type="button"><svg viewBox="0 0 24 24"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Snap it!</span></button></div></div><div class="v9-home-rail" aria-hidden="true"><i class="active"></i><i></i><i></i><i></i><i></i></div></div>
       <section class="v9-story-wrap">
         <div class="v9-story-head"><div><div class="v9-story-label">Today's Story</div><div class="v9-story-date">Jul 30 · Day 84 in Furever</div></div><button class="v9-collapse" type="button" aria-expanded="false" aria-label="Close story"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
         <h1 class="v9-article-title">The Tide Writes Back</h1>
@@ -1546,8 +1649,9 @@
     </div>
     <div class="v9-voice-status" id="v9VoiceStatus">Listening…</div>
     <nav class="v9-bottom" aria-label="Main actions">
-      <button class="v9-bottom-home" id="v9HomeButton" type="button" aria-label="Open Companion"><img src="${AVATAR}" alt="Pipi"><span class="unread" id="v9Unread"></span></button>
-      <button class="v9-main-mic" id="v9MainMic" type="button" aria-label="Talk to Pipi"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <button class="v9-bottom-home" id="v9HomeButton" type="button" aria-label="Switch pet"><img src="${AVATAR}" alt="Pipi"><span class="unread" id="v9Unread"></span></button>
+      <button class="v9-main-gift" id="v9MainGift" type="button" aria-label="Capture a gift"><svg viewBox="0 0 24 24"><path d="M3 10h18v11H3zM2 7h20v4H2zM12 7v14"/><path d="M12 7H8.5A2.5 2.5 0 1 1 11 4.5L12 7ZM12 7h3.5A2.5 2.5 0 1 0 13 4.5L12 7Z"/></svg></button>
+      <button class="v9-main-mic capture-mode" id="v9MainMic" type="button" aria-label="Capture this moment"><svg viewBox="0 0 24 24"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
     </nav>
     <div class="v9-sheet" id="v9Sheet" aria-hidden="true"><h3 id="v9SheetTitle">Profile</h3><p id="v9SheetText"></p><button class="v9-sheet-close" type="button">Done</button></div>
   `;
@@ -1566,11 +1670,124 @@
   latestJump.textContent = 'Latest';
   latestJump.setAttribute('aria-label','Back to latest story');
   petHud?.appendChild(latestJump);
+  const petMenu = document.createElement('div');
+  petMenu.className = 'v9-pet-dropdown';
+  petMenu.innerHTML = '<button type="button" data-v9-menu="switch">Switch pet <span>Multi-pet</span></button><button type="button" data-v9-menu="profile">Profile <span>Pipi</span></button>';
+  petHud?.appendChild(petMenu);
+  const petSwitcher = document.createElement('section');
+  petSwitcher.className = 'v9-pet-switcher';
+  petSwitcher.setAttribute('aria-hidden','true');
+  petSwitcher.innerHTML = `
+    <div class="v9-pet-top"><button class="v9-pet-back" type="button" aria-label="Back"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="v9-pet-title">Your companions · 1/3</div><button class="v9-pet-settings" type="button" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></button></div>
+    <button class="v9-pet-card" type="button" aria-label="Open Pipi profile">
+      <div class="v9-pet-card-head"><span>Furever Petizen Card</span><span class="v9-current-badge">Current</span></div>
+      <div class="v9-pet-card-body"><img class="v9-pet-card-avatar" src="${AVATAR}" alt="Pipi"><div><div class="v9-pet-card-name">pipi</div><div class="v9-pet-card-facts"><span>🎂 15 yrs</span><span>🗓 84 days in Furever</span></div></div></div>
+      <div class="v9-pet-card-id">ID: FUR_84_PIPI</div>
+    </button>
+    <button class="v9-add-pet" type="button" aria-label="Add a new petizen"><span class="v9-add-plus">+</span><span><strong>Add a new petizen</strong><span>Remember another friend you’ve loved</span></span></button>
+  `;
+  shell.appendChild(petSwitcher);
+  const profilePanel = document.createElement('section');
+  profilePanel.className = 'v9-profile-panel';
+  profilePanel.setAttribute('aria-hidden','true');
+  profilePanel.innerHTML = `
+    <div class="v9-pet-top"><button class="v9-pet-back" type="button" aria-label="Back"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button></div>
+    <div class="v9-profile-hero"><img class="v9-profile-avatar" src="${AVATAR}" alt="Pipi"><span class="v9-profile-camera">⌾</span></div>
+    <div class="v9-profile-card">
+      <div class="v9-profile-row"><span>Name</span><strong>Pipi</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Species</span><strong>Dog</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Age</span><strong>15 yrs</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Birthday</span><em>Add birthday</em><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Passing date</span><em>Add passing date</em><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Resident since</span><strong>30/07/2026</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Days in Furever</span><strong>84 days</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+    </div>
+    <div class="v9-profile-card">
+      <div class="v9-profile-row"><span>Breed</span><strong>Poodle mix</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Body type</span><strong>small</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="v9-profile-row"><span>Reference pics</span><strong>1 pic</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+    </div>
+    <div class="v9-profile-card">
+      <div class="v9-profile-row"><span>Memories</span><strong>View all</strong><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></div>
+    </div>
+  `;
+  shell.appendChild(profilePanel);
+  const settingsPanel = document.createElement('section');
+  settingsPanel.className = 'v9-settings-panel';
+  settingsPanel.setAttribute('aria-hidden','true');
+  settingsPanel.innerHTML = `
+    <div class="v9-pet-top"><button class="v9-pet-back" type="button" aria-label="Back"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="v9-settings-title">Settings</div></div>
+    <div class="v9-settings-group">
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 19V8l5-4 5 4v11M9 11h6"/></svg><span>Manage Subscription</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+    <div class="v9-settings-group">
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="M7 13c-2 0-3.5-1.5-3.5-3.5S5 6 7 6c1.3 0 2.3.7 3 1.8C10.7 6.7 11.7 6 13 6c2 0 3.5 1.5 3.5 3.5S15 13 13 13c-1.3 0-2.3-.7-3-1.8C9.3 12.3 8.3 13 7 13Z"/><path d="M6 17h12"/></svg><span>Join Furever Community</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.1-5.6-3-5.6 3 1.1-6.1L3 9.6l6.2-.9L12 3Z"/></svg><span>Rate Furever</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg><span>Share your Thoughts</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+    <div class="v9-settings-group">
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="M7 3h7l3 3v15H7z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg><span>Terms of Service</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg><span>Privacy Policy</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+    <div class="v9-settings-group">
+      <button class="v9-settings-row" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg><span>Delete account</span><svg class="chev" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+    <button class="v9-settings-signout" type="button">Sign out</button>
+  `;
+  shell.appendChild(settingsPanel);
+  const notificationPanel = document.createElement('section');
+  notificationPanel.className = 'v9-notifications-panel';
+  notificationPanel.setAttribute('aria-hidden','true');
+  notificationPanel.innerHTML = `
+    <div class="v9-notifications-top"><button class="v9-pet-back" type="button" aria-label="Back"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button><div class="v9-notifications-title">Notifications</div><button class="v9-read-all" type="button">Read all</button></div>
+    <div class="v9-notifications-list">
+      <article class="v9-notification-item"><span class="v9-notification-icon"><span class="v9-notification-dot"></span><svg viewBox="0 0 24 24"><path d="M4 8h16v11H4zM7 8V6h10v2M8 12h8M8 15h5"/><path d="M9 18c1.4-2 4.6-2 6 0"/></svg></span><div><strong>Your monthly treats are ready.</strong><p>Your treats balance has been refreshed, and 300 new treats have been added to your account.</p><time>10:49 AM</time></div></article>
+      <article class="v9-notification-item"><span class="v9-notification-icon green"><span class="v9-notification-dot"></span><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6zM9 6V4h6v2M9 11h6M9 15h4"/></svg></span><div><strong>Help Shape the Future of Furever — Get 20 Treats</strong><p>We’re exploring how to make Furever more comforting and helpful, and we’d love to hear from you.</p><time>9-10</time></div></article>
+      <article class="v9-notification-item"><span class="v9-notification-icon"><svg viewBox="0 0 24 24"><path d="M4 8h16v11H4zM7 8V6h10v2M8 12h8M8 15h5"/></svg></span><div><strong>Your monthly treats are ready.</strong><p>Your treats balance has been refreshed, and 300 new treats have been added to your account.</p><time>9-10</time></div></article>
+      <article class="v9-notification-item"><span class="v9-notification-icon"><span class="v9-notification-dot"></span><svg viewBox="0 0 24 24"><path d="M4 8h16v11H4zM7 8V6h10v2M8 12h8M8 15h5"/></svg></span><div><strong>Your monthly treats are ready.</strong><p>300 new treats have been added to your account, ready to help create new moments.</p><time>9-9</time></div></article>
+      <article class="v9-notification-item"><span class="v9-notification-icon"><span class="v9-notification-dot"></span><svg viewBox="0 0 24 24"><path d="M4 8h16v11H4zM7 8V6h10v2M8 12h8M8 15h5"/></svg></span><div><strong>Your monthly treats are ready.</strong><p>Your treats have been refreshed and are ready for new moments.</p><time>9-4</time></div></article>
+    </div>
+  `;
+  shell.appendChild(notificationPanel);
 
   const article = home.querySelector('#v9Article');
   let revealed = 1;
   let writingTimer = 0;
   let v9Treats = 288;
+  const mainActionButton = document.getElementById('v9MainMic');
+  const cameraIcon = '<svg viewBox="0 0 24 24"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+  const micIcon = '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+  const messageIcon = '<svg viewBox="0 0 24 24"><path d="M5 6.5h14a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H10l-5 4v-4.5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z"/><path d="M8 11h8M8 14h5"/></svg>';
+  const setMainActionMode = mode => {
+    if (!mainActionButton) return;
+    const isCapture = mode === 'capture';
+    mainActionButton.disabled = false;
+    mainActionButton.classList.toggle('capture-mode', isCapture);
+    mainActionButton.classList.toggle('message-mode', !isCapture);
+    mainActionButton.classList.remove('capturing','listening');
+    mainActionButton.setAttribute('aria-label', isCapture ? 'Capture this moment' : 'Message Pipi');
+    mainActionButton.innerHTML = isCapture ? cameraIcon : messageIcon;
+  };
+  const updateTreatsDisplay = () => {
+    home.querySelector('.v9-treats span')?.replaceChildren(document.createTextNode(String(v9Treats)));
+    document.querySelector('.treats-count')?.replaceChildren(document.createTextNode(String(v9Treats)));
+  };
+  const captureMoment = (button, paragraph = paragraphs[Math.max(0, Math.min(revealed - 1, paragraphs.length - 1))]) => {
+    if (v9Treats < 1 || !button || button.disabled) return;
+    const event = events.find(item => String(item.id) === String(paragraph.eventId)) || {};
+    v9Treats -= 1;
+    updateTreatsDisplay();
+    button.disabled = true;
+    button.classList.add('capturing');
+    const label = button.querySelector('span');
+    if (label) label.textContent = 'Capturing…';
+    window.setTimeout(() => {
+      button.classList.remove('capturing');
+      if (label) label.textContent = button.classList.contains('v9-teaser-capture') ? 'Snap it!' : 'Captured';
+      insertHomeSnap(event, paragraph);
+      if (button === mainActionButton || button.classList.contains('v9-teaser-capture')) button.disabled = false;
+    }, 720);
+  };
   const renderArticle = () => {
     article.replaceChildren();
     paragraphs.forEach((paragraph, index) => {
@@ -1590,19 +1807,7 @@
         }
         snap = document.createElement('button'); snap.className = 'v9-snap'; snap.type = 'button'; snap.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Capture this moment · 1 Treat</span>'; node.appendChild(snap);
       }
-      if (snap) snap.addEventListener('click', () => {
-        if (v9Treats < 1 || snap.disabled) return;
-        v9Treats -= 1;
-        home.querySelector('.v9-treats span').textContent = v9Treats;
-        snap.disabled = true;
-        snap.classList.add('capturing');
-        snap.querySelector('span').textContent = 'Capturing…';
-        window.setTimeout(() => {
-          snap.classList.remove('capturing');
-          snap.querySelector('span').textContent = 'Captured';
-          insertHomeSnap(event, paragraph);
-        }, 720);
-      });
+      if (snap) snap.addEventListener('click', () => captureMoment(snap, paragraph));
       article.appendChild(node);
     });
   };
@@ -1624,8 +1829,98 @@
   home.querySelector('.v9-identity-switch').addEventListener('click', () => openSheet('Switch pet','Pipi is currently active. Other pets can enter their own story space here.'));
   home.querySelectorAll('[data-sheet]').forEach(button => button.addEventListener('click', () => { const title = button.dataset.sheet; openSheet(title, title === 'Treats' ? '288 Treats available for story moments.' : `${title} is ready for the next Furever release.`); }));
   sheet.querySelector('.v9-sheet-close').addEventListener('click', () => { sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); shell.classList.remove('sheet-open'); });
+  const profileTrigger = document.getElementById('profileTrigger');
+  const openPetSwitcher = () => {
+    petMenu.classList.remove('open');
+    petSwitcher.classList.add('open');
+    petSwitcher.setAttribute('aria-hidden','false');
+    profilePanel.classList.remove('open');
+    profilePanel.setAttribute('aria-hidden','true');
+    settingsPanel.classList.remove('open');
+    settingsPanel.setAttribute('aria-hidden','true');
+    notificationPanel.classList.remove('open');
+    notificationPanel.setAttribute('aria-hidden','true');
+    shell.classList.remove('settings-open','notifications-open');
+    shell.classList.add('pet-panel-open');
+  };
+  const closePetPanels = () => {
+    petSwitcher.classList.remove('open');
+    petSwitcher.setAttribute('aria-hidden','true');
+    profilePanel.classList.remove('open');
+    profilePanel.setAttribute('aria-hidden','true');
+    shell.classList.remove('pet-panel-open');
+  };
+  const openPetProfile = () => {
+    petSwitcher.classList.remove('open');
+    petSwitcher.setAttribute('aria-hidden','true');
+    profilePanel.classList.add('open');
+    profilePanel.setAttribute('aria-hidden','false');
+    shell.classList.add('pet-panel-open');
+  };
+  const openSettingsPanel = () => {
+    closePetPanels();
+    notificationPanel.classList.remove('open');
+    notificationPanel.setAttribute('aria-hidden','true');
+    settingsPanel.classList.add('open');
+    settingsPanel.setAttribute('aria-hidden','false');
+    shell.classList.remove('notifications-open');
+    shell.classList.add('settings-open');
+  };
+  const closeSettingsPanel = () => {
+    settingsPanel.classList.remove('open');
+    settingsPanel.setAttribute('aria-hidden','true');
+    shell.classList.remove('settings-open');
+  };
+  const openNotificationPanel = () => {
+    closePetPanels();
+    settingsPanel.classList.remove('open');
+    settingsPanel.setAttribute('aria-hidden','true');
+    notificationPanel.classList.add('open');
+    notificationPanel.setAttribute('aria-hidden','false');
+    shell.classList.remove('settings-open');
+    shell.classList.add('notifications-open');
+  };
+  const closeNotificationPanel = () => {
+    notificationPanel.classList.remove('open');
+    notificationPanel.setAttribute('aria-hidden','true');
+    shell.classList.remove('notifications-open');
+  };
+  const closePetMenu = () => petMenu.classList.remove('open');
+  profileTrigger?.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
+  document.getElementById('v9HomeButton')?.addEventListener('click', openPetSwitcher);
+  document.querySelector('.hud-top .utility-strip button[aria-label="Notifications"]')?.addEventListener('click', openNotificationPanel);
+  petSwitcher.querySelector('.v9-pet-settings')?.addEventListener('click', event => {
+    event.stopPropagation();
+    openSettingsPanel();
+  });
+  petSwitcher.querySelector('.v9-pet-card')?.addEventListener('click', openPetProfile);
+  petSwitcher.querySelector('.v9-pet-back')?.addEventListener('click', closePetPanels);
+  profilePanel.querySelector('.v9-pet-back')?.addEventListener('click', openPetSwitcher);
+  settingsPanel.querySelector('.v9-pet-back')?.addEventListener('click', closeSettingsPanel);
+  notificationPanel.querySelector('.v9-pet-back')?.addEventListener('click', closeNotificationPanel);
+  notificationPanel.querySelector('.v9-read-all')?.addEventListener('click', () => {
+    notificationPanel.querySelectorAll('.v9-notification-dot').forEach(dot => dot.remove());
+  });
+  let petPullStart = null;
+  shell.addEventListener('pointerdown', event => {
+    if (event.target.closest('button') || shell.classList.contains('companion-open')) return;
+    if (event.clientY < 122) petPullStart = { x:event.clientX, y:event.clientY };
+  }, { capture:true });
+  shell.addEventListener('pointerup', event => {
+    if (!petPullStart) return;
+    const dx = event.clientX - petPullStart.x;
+    const dy = event.clientY - petPullStart.y;
+    petPullStart = null;
+    if (dy > 72 && Math.abs(dx) < 86) {
+      event.preventDefault();
+      openPetSwitcher();
+    }
+  }, { capture:true });
   const storyToggle = home.querySelector('.v9-collapse');
-  window.setTimeout(() => home.classList.add('reveal-story'), 1500);
+  home.classList.add('reveal-story');
   const setStoryExpanded = expanded => {
     home.classList.toggle('story-expanded', expanded);
     storyToggle.setAttribute('aria-expanded', String(expanded));
@@ -1634,13 +1929,23 @@
     else clearTimeout(writingTimer);
   };
   storyToggle.addEventListener('click', () => setStoryExpanded(storyToggle.getAttribute('aria-expanded') !== 'true'));
-  home.querySelector('.v9-story-reveal').addEventListener('click', () => setStoryExpanded(true));
+  const storyReveal = home.querySelector('.v9-story-reveal');
+  storyReveal.querySelector('.v9-read-story')?.addEventListener('click', event => {
+    event.stopPropagation();
+    setStoryExpanded(true);
+  });
+  storyReveal.querySelector('.v9-teaser-capture')?.addEventListener('click', event => {
+    event.stopPropagation();
+    captureMoment(event.currentTarget, paragraphs[0]);
+  });
 
   let feedMode = false;
+  let feedStartX = 0;
   let feedStartY = 0;
   const enterFeedMode = () => {
     feedMode = true;
     shell.classList.add('feed-mode');
+    setMainActionMode('message');
     dayIndex = Math.min(1, DAYS.length - 1);
     shotIndex[dayIndex] = 0;
     applyTransforms();
@@ -1649,6 +1954,7 @@
   const exitFeedMode = () => {
     feedMode = false;
     shell.classList.remove('feed-mode');
+    setMainActionMode('message');
     dayIndex = 0;
     shotIndex[0] = 0;
     applyTransforms();
@@ -1660,10 +1966,14 @@
   });
   home.addEventListener('pointerdown', event => {
     if (home.classList.contains('story-expanded') || event.target.closest('button')) return;
+    feedStartX = event.clientX;
     feedStartY = event.clientY;
   }, { capture:true });
   home.addEventListener('pointerup', event => {
     if (home.classList.contains('story-expanded') || event.target.closest('button')) return;
+    const dx = event.clientX - feedStartX;
+    const dy = event.clientY - feedStartY;
+    if (dx > 64 && Math.abs(dy) < 58) { openCompanionV9({ summon:true }); return; }
     if (feedStartY - event.clientY > 46) enterFeedMode();
   }, { capture:true });
   let feedReturnStartY = 0;
@@ -1820,10 +2130,12 @@
     clearTimeout(responseTimer);
     responseTimer = window.setTimeout(completeResponse, 1700);
   };
-  const openCompanionV9 = () => {
+  const openCompanionV9 = ({ summon = false } = {}) => {
     renderHistory();
     renderHistoryDepth();
+    companion.classList.toggle('summon-mode', summon);
     companion.classList.add('open'); companion.setAttribute('aria-hidden','false'); shell.classList.add('companion-open');
+    shell.classList.toggle('summon-open', summon);
     unread.classList.remove('on');
     if (pendingVoice) showVoiceResponse();
     else if (companionVideo.src) { companionVideo.loop = true; companionVideo.play().catch(() => {}); }
@@ -1831,9 +2143,9 @@
   const closeCompanionV9 = () => {
     if (pendingVoice && !companion.classList.contains('response-done')) return;
     if (pendingVoice) { addHistory({type:'voice',title:'Voice moment',text:`“${pendingVoice.transcript}” · Pipi answered with a bright stretch.`,emoji:pendingVoice.emoji,time:'Just now'}); pendingVoice = null; }
-    companion.classList.remove('open','response-mode','response-done'); companion.setAttribute('aria-hidden','true'); shell.classList.remove('companion-open'); companionVideo.pause(); companionCanvas.classList.remove('playing'); companionPetImage.src = V9_COMPANION_POSTER; renderHistory(); renderHistoryDepth();
+    companion.classList.remove('open','response-mode','response-done','summon-mode'); companion.setAttribute('aria-hidden','true'); shell.classList.remove('companion-open','summon-open'); companionVideo.pause(); companionCanvas.classList.remove('playing'); companionPetImage.src = V9_COMPANION_POSTER; renderHistory(); renderHistoryDepth();
   };
-  document.getElementById('v9HomeButton').addEventListener('click', openCompanionV9); companion.querySelector('.v9-close').addEventListener('click', closeCompanionV9);
+  companion.querySelector('.v9-close').addEventListener('click', closeCompanionV9);
 
   let mainListening = false, companionListening = false;
   const beginVoiceResponse = ({fromMain = false} = {}) => {
@@ -1842,10 +2154,14 @@
     else showVoiceResponse();
   };
   const toggleMainVoice = () => { const button = document.getElementById('v9MainMic'), status = document.getElementById('v9VoiceStatus'); if (mainListening) { mainListening = false; button.classList.remove('listening'); status.textContent = 'Thinking…'; status.classList.add('on'); window.setTimeout(() => beginVoiceResponse({fromMain:true}), 650); } else { mainListening = true; button.classList.add('listening'); status.textContent = 'Listening…'; status.classList.add('on'); } };
-  document.getElementById('v9MainMic').addEventListener('click', toggleMainVoice);
+  mainActionButton?.addEventListener('click', () => {
+    openCompanionV9({ summon:true });
+  });
+  setMainActionMode('message');
   const toggleCompanionVoice = () => { const button = companion.querySelector('#v9CompanionMic'), bubble = companion.querySelector('#v9CompanionBubble'); if (companionListening) { companionListening = false; button.classList.remove('listening'); bubble.textContent = 'Thinking…'; window.setTimeout(() => beginVoiceResponse(), 650); } else { companionListening = true; button.classList.add('listening'); bubble.textContent = 'Listening…'; } };
   companion.querySelector('#v9CompanionMic').addEventListener('click', toggleCompanionVoice);
   companion.querySelector('#v9CompanionGift').addEventListener('click', () => document.querySelector('#giftLaunch')?.click());
+  document.getElementById('v9MainGift')?.addEventListener('click', () => document.querySelector('#giftLaunch')?.click());
   document.addEventListener('visibilitychange', () => { if (document.hidden) companionVideo.pause(); });
 })();
 </script>
